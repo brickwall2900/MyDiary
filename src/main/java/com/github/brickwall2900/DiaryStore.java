@@ -28,7 +28,17 @@ public class DiaryStore {
 
     public static final int FILE_VERSION = 1000;
 
-    public record DiaryEntry(String name, LocalDate date, LocalTime time) implements Comparable<DiaryEntry>, Serializable {
+    public static class DiaryEntry implements Comparable<DiaryEntry>, Serializable {
+        public String name;
+        public LocalDate date;
+        public LocalTime time;
+
+        public DiaryEntry(String name, LocalDate date, LocalTime time) {
+            this.name = name;
+            this.date = date;
+            this.time = time;
+        }
+
         @Override
         public String toString() {
             LocalDateTime dateTime = LocalDateTime.of(date, time);

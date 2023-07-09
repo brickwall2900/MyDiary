@@ -113,12 +113,25 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Menu Bar Instantiation">
     private void buildMenuBar() {
         menuBar = new JMenuBar();
         fileMenu = new JMenu("File");
         entriesMenu = new JMenu("Entries");
         aboutMenu = new JMenu("About");
 
+        buildFileMenu();
+        buildAboutMenu();
+        buildEntriesMenu();
+
+        buildMnemonics();
+
+        addAllMenuElements();
+
+        setJMenuBar(menuBar);
+    }
+
+    private void buildFileMenu() {
         saveItem = new JMenuItem("Save");
         saveItem.setAccelerator(KeyStroke.getKeyStroke(VK_S, CTRL_DOWN_MASK));
         saveItem.addActionListener(this);
@@ -141,11 +154,18 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(KeyStroke.getKeyStroke(VK_F4, ALT_DOWN_MASK));
+    }
 
+    private void buildAboutMenu() {
         preferencesMenu = new JMenuItem("Configuration");
         preferencesMenu.setAccelerator(KeyStroke.getKeyStroke(VK_ENTER, CTRL_DOWN_MASK));
         preferencesMenu.addActionListener(this);
 
+        aboutItem = new JMenuItem("About");
+        aboutItem.addActionListener(this);
+    }
+
+    private void buildEntriesMenu() {
         newEntryItem = new JMenuItem("New");
         newEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_N, CTRL_DOWN_MASK));
         newEntryItem.addActionListener(this);
@@ -171,10 +191,33 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         prevEntryItem = new JMenuItem("Previous");
         prevEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_LEFT, 0));
         prevEntryItem.addActionListener(this);
+    }
 
-        aboutItem = new JMenuItem("About");
-        aboutItem.addActionListener(this);
+    private void buildMnemonics() {
+        // menu mnemonics
+        fileMenu.setMnemonic(VK_F);
+        entriesMenu.setMnemonic(VK_E);
+        aboutMenu.setMnemonic(VK_A);
 
+        // mnemonics
+        saveItem.setMnemonic(VK_S);
+        reloadItem.setMnemonic(VK_R);
+        backupItem.setMnemonic(VK_B);
+        loadFromBackupItem.setMnemonic(VK_L);
+        exitItem.setMnemonic(VK_X);
+
+        newEntryItem.setMnemonic(VK_N);
+        editEntryItem.setMnemonic(VK_E);
+        jumpToEntryItem.setMnemonic(VK_J);
+        prevEntryItem.setMnemonic(VK_P);
+        nextEntryItem.setMnemonic(VK_N);
+
+        preferencesMenu.setMnemonic(VK_P);
+        aboutItem.setMnemonic(VK_A);
+    }
+
+    private void addAllMenuElements() {
+        // throw them into the menu
         fileMenu.add(saveItem);
         fileMenu.add(reloadItem);
         fileMenu.add(separator2);
@@ -197,9 +240,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         menuBar.add(fileMenu);
         menuBar.add(entriesMenu);
         menuBar.add(aboutMenu);
-
-        setJMenuBar(menuBar);
     }
+    // </editor-fold>
 
     public void addEntry() {
         DiaryStore.DiaryEntry entry = newEntryDialog.askNewEntry();
@@ -211,9 +253,9 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             }
             if (overwrite) {
                 String template = CONFIGURATION.template;
-                LocalDateTime dateTime = LocalDateTime.of(entry.date(), entry.time());
+                LocalDateTime dateTime = LocalDateTime.of(entry.date, entry.time);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CONFIGURATION.timeFormat);
-                template = template.replace("{name}", entry.name()).replace("{time}", formatter.format(dateTime));
+                template = template.replace("{name}", entry.name).replace("{time}", formatter.format(dateTime));
                 ENTRIES.put(entry, template);
                 updatePanelWithEntry(entry);
                 currentEntry = entry;
