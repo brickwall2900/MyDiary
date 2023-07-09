@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 
 public class Main {
     public static final Main INSTANCE = new Main();
-    public static final int VERSION = 1000;
 
     public static void main(String[] args) {
         try {
@@ -50,7 +49,7 @@ public class Main {
 
     private boolean askCreate() {
         return JOptionPane.showConfirmDialog(null,
-                "Hello %s, would you like to create a new diary now?".formatted(DiaryStore.USERNAME),
+                "Hello %s! Would you like to create a new diary now?".formatted(DiaryStore.USERNAME),
                 DiaryFrame.TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 }

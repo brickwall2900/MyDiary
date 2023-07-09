@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.zip.GZIPOutputStream;
 
 import static com.github.brickwall2900.DiaryFrame.TITLE;
 import static com.github.brickwall2900.Main.INSTANCE;
-import static com.github.brickwall2900.Main.VERSION;
 import static com.github.brickwall2900.ThisIsAnInsaneEncryptAlgorithm.*;
 import static javax.swing.JOptionPane.*;
 
@@ -23,6 +21,8 @@ public class DiaryStore {
     public static final String USERNAME;
     private static final File HOME;
     public static final File DIARY_FILE;
+
+    public static final int FILE_VERSION = 1000;
 
     public record DiaryEntry(String name, LocalDate date, LocalTime time) implements Comparable<DiaryEntry>, Serializable {
         @Override
@@ -78,10 +78,10 @@ public class DiaryStore {
                  ObjectInputStream ois = new ObjectInputStream(gis)) {
 
                 DiaryState state = (DiaryState) ois.readObject();
-                if (state.version == VERSION) {
+                if (state.fileVersion == FILE_VERSION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
-                } else if (JOptionPane.showConfirmDialog(null, "The version you've loaded is incompatible with the current version! (%d (prog. ver.) != %d (file ver.))\n".formatted(VERSION, state.version) +
+                } else if (JOptionPane.showConfirmDialog(null, "The fileVersion you've loaded is incompatible with the current fileVersion! (%d (prog. ver.) != %d (file ver.))\n".formatted(FILE_VERSION, state.fileVersion) +
                         "Are you sure you want to continue?", TITLE, YES_NO_OPTION) == YES_OPTION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
@@ -104,7 +104,7 @@ public class DiaryStore {
                  ObjectOutputStream oos = new ObjectOutputStream(gos)) {
                 DiaryLoadScreen load = INSTANCE.frame.loadDialog;
                 SwingUtilities.invokeLater(() -> load.openLoadDialog("Saving...", 25));
-                oos.writeObject(new DiaryState(CONFIGURATION, ENTRIES, VERSION));
+                oos.writeObject(new DiaryState(CONFIGURATION, ENTRIES, FILE_VERSION));
                 oos.flush();
                 SwingUtilities.invokeLater(() -> load.openLoadDialog("Compressing...", 50));
                 gos.flush();
@@ -148,5 +148,5 @@ public class DiaryStore {
         public DiaryConfiguration() {
         }
     }
-    public record DiaryState(DiaryConfiguration configuration, Map<DiaryEntry, String> entries, int version) implements Serializable {}
+    public record DiaryState(DiaryConfiguration configuration, Map<DiaryEntry, String> entries, int fileVersion) implements Serializable {}
 }

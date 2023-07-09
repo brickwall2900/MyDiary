@@ -21,7 +21,7 @@ public class DiaryMarkdownToHTML {
         }
     }
 
-    private static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
+    protected static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
 
     private static final String LOAD_MESSAGE = "Please wait...";
 
