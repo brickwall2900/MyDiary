@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -51,8 +50,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JSeparator separator2;
             public JMenuItem backupItem;
             public JMenuItem loadFromBackupItem;
-            public JSeparator separator3;
-            public JMenuItem exitItem;
         public JMenu entriesMenu;
             public JMenuItem newEntryItem;
             public JMenuItem editEntryItem;
@@ -150,11 +147,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         loadFromBackupItem = new JMenuItem("Load from Backup");
         loadFromBackupItem.setAccelerator(KeyStroke.getKeyStroke(VK_O, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         loadFromBackupItem.addActionListener(this);
-
-        separator3 = new JSeparator();
-
-        exitItem = new JMenuItem("Exit");
-        exitItem.setAccelerator(KeyStroke.getKeyStroke(VK_F4, ALT_DOWN_MASK));
     }
 
     private void buildAboutMenu() {
@@ -205,7 +197,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         reloadItem.setMnemonic(VK_R);
         backupItem.setMnemonic(VK_B);
         loadFromBackupItem.setMnemonic(VK_L);
-        exitItem.setMnemonic(VK_X);
 
         newEntryItem.setMnemonic(VK_N);
         editEntryItem.setMnemonic(VK_E);
@@ -224,8 +215,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         fileMenu.add(separator2);
         fileMenu.add(backupItem);
         fileMenu.add(loadFromBackupItem);
-        fileMenu.add(separator3);
-        fileMenu.add(exitItem);
 
         entriesMenu.add(newEntryItem);
         entriesMenu.add(editEntryItem);
