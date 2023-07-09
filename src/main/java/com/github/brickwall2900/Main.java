@@ -3,24 +3,32 @@ package com.github.brickwall2900;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
-import java.awt.*;
+import java.io.PrintWriter;
 
 public class Main {
     public static final Main INSTANCE = new Main();
+    public static final int VERSION = 1000;
 
     public static void main(String[] args) {
         try {
             INSTANCE.setup();
             INSTANCE.start();
-        } catch (Exception e) {
+        } catch (Exception e) { // greatest exception handling ever
             e.printStackTrace();
+            try (TextAreaOutputStream outputStream = new TextAreaOutputStream(INSTANCE.errorMessage.textArea);
+                 PrintWriter printWriter = new PrintWriter(outputStream, true)) {
+                e.printStackTrace(printWriter);
+                INSTANCE.errorMessage.setVisible(true);
+            }
         }
     }
 
     public DiaryFrame frame;
+    public DiaryErrorMessage errorMessage;
 
     public void setup() {
         FlatLightLaf.setup();
+        errorMessage = new DiaryErrorMessage();
         frame = new DiaryFrame();
     }
 

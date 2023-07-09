@@ -41,6 +41,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JMenuItem nextEntryItem, prevEntryItem;
         public JMenu aboutMenu;
             public JMenuItem preferencesMenu;
+            public JMenuItem aboutItem;
 
     public FSScrollPane scrollPane;
         public XHTMLPanel htmlPanel;
@@ -254,8 +255,10 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         if (val == APPROVE_OPTION) {
             File f = fileChooser.getSelectedFile();
             try {
-                for (int i = 0; i < 10; i++, f.createNewFile());
-            } catch (IOException e) { }
+                for (int i = 0; i < 10 || f.createNewFile(); i++);
+            } catch (IOException e) {
+                throw new DiaryException("Cannot create backup file!", e);
+            }
             Thread t = new Thread(() -> save(f));
             t.setName("Save Thread");
             t.start();
