@@ -108,6 +108,7 @@ public class DiarySetup {
        }
         FlatAnimatedLafChange.showSnapshot();
         lafChange.editor.changeTheme(configuration.darkMode);
+        lafChange.configurationDialog.templateEditor.changeTheme(configuration.darkMode);
         lafChange.updateUI();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
     }

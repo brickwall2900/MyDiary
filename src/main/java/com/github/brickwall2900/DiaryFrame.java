@@ -212,7 +212,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         prevEntryItem.setMnemonic(VK_P);
         nextEntryItem.setMnemonic(VK_N);
 
-        preferencesMenu.setMnemonic(VK_P);
+        preferencesMenu.setMnemonic(VK_C);
         aboutItem.setMnemonic(VK_A);
     }
 
