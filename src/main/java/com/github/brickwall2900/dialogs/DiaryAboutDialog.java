@@ -41,7 +41,7 @@ public class DiaryAboutDialog extends JDialog {
         setModal(true);
         setModalityType(APPLICATION_MODAL);
         setTitle(TITLE);
-        setSize(640, 240);
+        setSize(640, 270);
         setResizable(false);
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -69,6 +69,8 @@ public class DiaryAboutDialog extends JDialog {
                 <p>Current File Version: %d</p>
                 
                 <p>... and you are %s!</p>
+                
+                <em><strong>(WARNING: THIS APPLICATION DOES NOT GUARANTEE 100%% SECURITY WITH ALL YOUR PRIVATE SECRETS!)</strong></em>
                 """.formatted(FILE_VERSION, USERNAME));
         setVisible(true);
     }

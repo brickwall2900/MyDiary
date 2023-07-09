@@ -7,6 +7,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,7 +113,7 @@ public class DiaryMarkdownToHTML {
             String rendered = HtmlRenderer.builder().build().render(document);
             setTask("Processing...");
             setProgress(66);
-            ByteArrayInputStream bis = new ByteArrayInputStream(wrapHTMLIntoActualDocument(rendered).getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream bis = new ByteArrayInputStream(wrapHTMLIntoActualDocument(rendered).getBytes(Charset.defaultCharset()));
             CacheRecord record = new CacheRecord(rendered);
             record.time = System.currentTimeMillis();
             MD_TO_HTML_CACHE.put(markdown.hashCode(), record);

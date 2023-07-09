@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -107,7 +108,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     private void loadToHelpPage() {
         try {
-            htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(DIARY_HELP_PREDEF).getBytes(StandardCharsets.UTF_8)), null);
+            htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(DIARY_HELP_PREDEF).getBytes(Charset.defaultCharset())), null);
         } catch (Exception e) {
             throw new DiaryException("Error opening starting page!", e);
         }
@@ -271,7 +272,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
                 ENTRIES.put(currentEntry, "");
                 ENTRIES.remove(currentEntry);
                 try {
-                    htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(ENTRY_REMOVED_MESSAGE_PREDEF).getBytes(StandardCharsets.UTF_8)), null);
+                    htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(ENTRY_REMOVED_MESSAGE_PREDEF).getBytes(Charset.defaultCharset())), null);
                 } catch (Exception e) {
                     throw new DiaryException("Error removing an entry!", e);
                 }
@@ -284,7 +285,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         if (entry != null) {
             String content = ENTRIES.get(entry);
             try {
-                htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(getHTMLFromMarkdown(content)).getBytes(StandardCharsets.UTF_8)), null);
+                htmlPanel.setDocument(new ByteArrayInputStream(wrapHTMLIntoActualDocument(getHTMLFromMarkdown(content)).getBytes(Charset.defaultCharset())), null);
             } catch (Exception e) {
                 throw new DiaryException("HTML/Markdown Exception!", e);
             }
@@ -421,7 +422,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     @Override
     public void windowClosing(WindowEvent e) {
-        System.out.println(e);
         Thread t = new Thread(() -> saveAndExit(DIARY_FILE));
         t.setName("Close Save Thread");
         t.start();
