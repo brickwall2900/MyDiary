@@ -1,16 +1,25 @@
 package com.github.brickwall2900;
 
+import com.github.brickwall2900.dialogs.*;
 import org.xhtmlrenderer.simple.FSScrollPane;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-
-import java.awt.event.*;
-import java.io.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.brickwall2900.DiaryMarkdownToHTML.*;
 import static com.github.brickwall2900.DiarySetup.applyConfiguration;
@@ -23,13 +32,25 @@ import static javax.swing.SwingUtilities.updateComponentTreeUI;
 
 public class DiaryFrame extends JFrame implements ActionListener, WindowListener {
     public static final String TITLE = "The Diary";
+    public static final Image IMAGE_ICON;
+    public static final ImageIcon ICON;
+
+    static {
+        try {
+            ICON = new ImageIcon(IMAGE_ICON = ImageIO.read(Objects.requireNonNull(DiaryFrame.class.getResourceAsStream("/icon.png"), "Where the hell did the icon go?")));
+        } catch (IOException e) {
+            throw new DiaryException("Icon read error!", e);
+        }
+    }
 
     public JMenuBar menuBar;
         public JMenu fileMenu;
             public JMenuItem saveItem;
             public JMenuItem reloadItem;
+            public JSeparator separator2;
             public JMenuItem backupItem;
             public JMenuItem loadFromBackupItem;
+            public JSeparator separator3;
             public JMenuItem exitItem;
         public JMenu entriesMenu;
             public JMenuItem newEntryItem;
@@ -49,18 +70,15 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     public DiaryNewEntryDialog newEntryDialog;
     public DiaryJumpToEntryDialog jumpToEntryDialog;
     public DiaryConfigurationDialog configurationDialog;
-    public DiaryLoadScreen loadDialog;
+    public DiaryLoadDialog loadDialog;
+    public DiaryAboutDialog aboutDialog;
+    public DiaryPasswordDialog passwordDialog;
 
     public JFileChooser fileChooser;
 
     public DiaryStore.DiaryEntry currentEntry;
 
     public DiaryFrame() {
-        setTitle(TITLE);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-
         buildMenuBar();
 
         htmlPanel = new XHTMLPanel();
@@ -72,11 +90,19 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         newEntryDialog = new DiaryNewEntryDialog(this);
         jumpToEntryDialog = new DiaryJumpToEntryDialog(this);
         configurationDialog = new DiaryConfigurationDialog(this);
-        loadDialog = new DiaryLoadScreen(this);
+        loadDialog = new DiaryLoadDialog(this);
+        aboutDialog = new DiaryAboutDialog(this);
+        passwordDialog = new DiaryPasswordDialog(this);
 
         fileChooser = new JFileChooser();
 
         addWindowListener(this);
+
+        setIconImage(IMAGE_ICON);
+        setTitle(TITLE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(1280, 720);
+        setLocationRelativeTo(null);
     }
 
     private void loadToHelpPage() {
@@ -101,6 +127,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         reloadItem.setAccelerator(KeyStroke.getKeyStroke(VK_R, CTRL_DOWN_MASK));
         reloadItem.addActionListener(this);
 
+        separator2 = new JSeparator();
+
         backupItem = new JMenuItem("Backup");
         backupItem.setAccelerator(KeyStroke.getKeyStroke(VK_S, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         backupItem.addActionListener(this);
@@ -108,6 +136,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         loadFromBackupItem = new JMenuItem("Load from Backup");
         loadFromBackupItem.setAccelerator(KeyStroke.getKeyStroke(VK_O, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         loadFromBackupItem.addActionListener(this);
+
+        separator3 = new JSeparator();
 
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(KeyStroke.getKeyStroke(VK_F4, ALT_DOWN_MASK));
@@ -147,8 +177,10 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
         fileMenu.add(saveItem);
         fileMenu.add(reloadItem);
+        fileMenu.add(separator2);
         fileMenu.add(backupItem);
         fileMenu.add(loadFromBackupItem);
+        fileMenu.add(separator3);
         fileMenu.add(exitItem);
 
         entriesMenu.add(newEntryItem);
@@ -269,6 +301,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         updateComponentTreeUI(jumpToEntryDialog);
         updateComponentTreeUI(loadDialog);
         updateComponentTreeUI(fileChooser);
+        updateComponentTreeUI(aboutDialog);
+        updateComponentTreeUI(passwordDialog);
         configurationDialog.updateUI();
     }
 
@@ -335,6 +369,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             loadFromBackup();
         } else if (reloadItem.equals(source)) {
             reload(DIARY_FILE);
+        } else if (aboutItem.equals(source)) {
+            aboutDialog.showAboutScreen();
         }
     }
 

@@ -1,26 +1,21 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.dialogs;
 
+import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.DiaryStore;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.httprpc.sierra.DatePicker;
-import org.httprpc.sierra.HorizontalAlignment;
 import org.httprpc.sierra.TextPane;
-import org.httprpc.sierra.TimePicker;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 
+import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
 import static com.github.brickwall2900.DiaryStore.ENTRIES;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
@@ -68,11 +63,13 @@ public class DiaryMarkdownEditor extends JDialog {
             }
         });
 
+        setIconImage(IMAGE_ICON);
         setModal(true);
         setModalityType(APPLICATION_MODAL);
         setTitle(TITLE);
         setSize(640, 480);
         setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     private void buildContentPane() {

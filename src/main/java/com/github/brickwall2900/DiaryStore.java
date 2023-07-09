@@ -1,5 +1,8 @@
 package com.github.brickwall2900;
 
+import com.github.brickwall2900.dialogs.DiaryLoadDialog;
+import com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm;
+
 import javax.swing.*;
 import java.io.*;
 import java.time.LocalDate;
@@ -14,8 +17,9 @@ import java.util.zip.GZIPOutputStream;
 
 import static com.github.brickwall2900.DiaryFrame.TITLE;
 import static com.github.brickwall2900.Main.INSTANCE;
-import static com.github.brickwall2900.ThisIsAnInsaneEncryptAlgorithm.*;
-import static javax.swing.JOptionPane.*;
+import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.*;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
 
 public class DiaryStore {
     public static final String USERNAME;
@@ -39,7 +43,7 @@ public class DiaryStore {
         }
 
     }
-    protected static Map<DiaryEntry, String> ENTRIES = new HashMap<>();
+    public static Map<DiaryEntry, String> ENTRIES = new HashMap<>();
 
     public static DiaryConfiguration CONFIGURATION = new DiaryConfiguration();
     static {
@@ -69,7 +73,7 @@ public class DiaryStore {
 
     protected static void load(File file) {
         ThisIsAnInsaneEncryptAlgorithm.Key key = DiarySetup.key;
-        DiaryLoadScreen load = INSTANCE.frame.loadDialog;
+        DiaryLoadDialog load = INSTANCE.frame.loadDialog;
         SwingUtilities.invokeLater(() -> load.openLoadDialog("Restoring Diary state...", 100));
         if (key != null) {
             try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
@@ -102,7 +106,7 @@ public class DiaryStore {
                  ByteArrayOutputStream bos = new ByteArrayOutputStream();
                  GZIPOutputStream gos = new GZIPOutputStream(bos, true);
                  ObjectOutputStream oos = new ObjectOutputStream(gos)) {
-                DiaryLoadScreen load = INSTANCE.frame.loadDialog;
+                DiaryLoadDialog load = INSTANCE.frame.loadDialog;
                 SwingUtilities.invokeLater(() -> load.openLoadDialog("Saving...", 25));
                 oos.writeObject(new DiaryState(CONFIGURATION, ENTRIES, FILE_VERSION));
                 oos.flush();

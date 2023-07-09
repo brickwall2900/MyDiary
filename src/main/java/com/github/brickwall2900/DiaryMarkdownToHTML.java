@@ -1,5 +1,6 @@
 package com.github.brickwall2900;
 
+import com.github.brickwall2900.dialogs.DiaryLoadDialog;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -9,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class DiaryMarkdownToHTML {
     private static class CacheRecord {
@@ -37,7 +37,7 @@ public class DiaryMarkdownToHTML {
             entryLoader.addPropertyChangeListener(e -> {
                 DiaryFrame frame = Main.INSTANCE.frame;
                 if (frame != null) {
-                    DiaryLoadScreen load = frame.loadDialog; // ???
+                    DiaryLoadDialog load = frame.loadDialog; // ???
                     switch (e.getPropertyName()) {
                         case "progress" -> load.setProgress((Integer) e.getNewValue());
                         case "name" -> load.setTaskName((String) e.getNewValue());
@@ -93,7 +93,6 @@ public class DiaryMarkdownToHTML {
 
     private static class DiaryEntryLoader extends SwingWorker<CacheRecord, Void> {
         private final String markdown;
-        private String processed;
 
         private DiaryEntryLoader(String markdown) {
             this.markdown = markdown;

@@ -1,23 +1,20 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.dialogs;
 
+import com.github.brickwall2900.DiaryStore;
 import org.httprpc.sierra.DatePicker;
 import org.httprpc.sierra.TextPane;
 import org.httprpc.sierra.TimePicker;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.concurrent.Executors;
 
+import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
-import static org.httprpc.sierra.HorizontalAlignment.LEADING;
 import static org.httprpc.sierra.UIBuilder.*;
 import static org.httprpc.sierra.VerticalAlignment.BOTTOM;
 
@@ -58,12 +55,13 @@ public class DiaryNewEntryDialog extends JDialog {
             }
         });
 
+        setIconImage(IMAGE_ICON);
         setModal(true);
         setModalityType(APPLICATION_MODAL);
         setTitle(TITLE);
         setSize(320, 240);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     private void buildContentPane() {

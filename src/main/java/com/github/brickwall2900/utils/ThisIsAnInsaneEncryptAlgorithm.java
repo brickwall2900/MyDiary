@@ -1,4 +1,6 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.utils;
+
+import com.github.brickwall2900.Main;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -10,7 +12,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

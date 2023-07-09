@@ -1,6 +1,7 @@
 package com.github.brickwall2900;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.github.brickwall2900.utils.TextAreaOutputStream;
 
 import javax.swing.*;
 import java.io.PrintWriter;

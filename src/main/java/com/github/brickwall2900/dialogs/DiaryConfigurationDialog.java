@@ -1,11 +1,13 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.dialogs;
 
-import org.httprpc.sierra.DatePicker;
+import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.DiaryStore;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
 import static com.github.brickwall2900.DiarySetup.applyConfiguration;
 import static com.github.brickwall2900.DiaryStore.CONFIGURATION;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
@@ -48,12 +50,13 @@ public class DiaryConfigurationDialog extends JDialog {
         timeFormattingField.setToolTipText("The formatting used for creating new entries in the diary. (https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)");
         templateEditButton.setToolTipText("Edits the template used for creating new entries in the diary. {name} resolves to the name inputted, and {time} resolves to the formatted time inputted.");
 
+        setIconImage(IMAGE_ICON);
         setModal(true);
         setModalityType(APPLICATION_MODAL);
         setTitle(TITLE);
         setSize(320, 240);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     private void buildContentPane() {

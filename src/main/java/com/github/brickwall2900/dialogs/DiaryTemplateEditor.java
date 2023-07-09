@@ -1,13 +1,12 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.dialogs;
 
+import com.github.brickwall2900.DiaryFrame;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-import static com.github.brickwall2900.DiaryStore.ENTRIES;
+import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static org.httprpc.sierra.UIBuilder.*;
 
@@ -29,11 +28,13 @@ public class DiaryTemplateEditor extends JDialog {
 
         editButton.addActionListener(e -> dispose());
 
+        setIconImage(IMAGE_ICON);
         setModal(true);
         setModalityType(APPLICATION_MODAL);
         setTitle(TITLE);
         setSize(640, 480);
         setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     private void buildContentPane() {

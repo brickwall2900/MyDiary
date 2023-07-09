@@ -1,7 +1,6 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.utils;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class TextAreaOutputStream extends OutputStream {

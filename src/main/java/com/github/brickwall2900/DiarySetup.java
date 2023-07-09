@@ -3,15 +3,19 @@ package com.github.brickwall2900;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+import com.github.brickwall2900.dialogs.DiaryPasswordDialog;
+import com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm;
 import org.httprpc.sierra.TaskExecutor;
 
 import javax.swing.*;
-
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.github.brickwall2900.ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString;
+import static com.github.brickwall2900.Main.INSTANCE;
+import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.eraseData;
+import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static javax.swing.JOptionPane.*;
 
 public class DiarySetup {
     protected static ThisIsAnInsaneEncryptAlgorithm.Key key = null;
@@ -32,12 +36,13 @@ public class DiarySetup {
             long uid1 = askRandomNumber();
             char[] uid2 = askPassword();
             confirmed = confirmOptions(iterations, uid1, uid2);
-            if (confirmed == JOptionPane.YES_OPTION) {
+            if (confirmed == YES_OPTION) {
                 key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, generateUUIDFromString(uid2));
-            } else if (confirmed == JOptionPane.CANCEL_OPTION) {
+                eraseData(uid2);
+            } else if (confirmed == CANCEL_OPTION) {
                 System.exit(0);
             }
-        } while (confirmed == JOptionPane.NO_OPTION);
+        } while (confirmed == NO_OPTION);
     }
 
     private static int confirmOptions(byte iterations, long uid1, char[] uid2) {
@@ -82,18 +87,16 @@ public class DiarySetup {
     }
 
     private static char[] askPassword() {
-        JPasswordField pwd = new JPasswordField(10);
-        int action = JOptionPane.showConfirmDialog(null, pwd,"Now enter a password: ", JOptionPane.OK_CANCEL_OPTION);
-        if (action == 0)  {
-            return pwd.getPassword();
-        } else {
-            throwIllegalArgument("You've didn't put a password in! A password is required.");
-            return null;
+        DiaryPasswordDialog passwordDialog = INSTANCE.frame.passwordDialog;
+        char[] pwd = passwordDialog.askPassword();
+        if (pwd == null) {
+            throwIllegalArgument("Password not entered!");
         }
+        return pwd;
     }
 
     private static void throwIllegalArgument(String message) {
-        JOptionPane.showMessageDialog(null, message, "", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, message, "", ERROR_MESSAGE);
         throw new IllegalArgumentException(message);
     }
 

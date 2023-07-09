@@ -1,19 +1,17 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.dialogs;
 
+import com.github.brickwall2900.DiaryFrame;
 import org.httprpc.sierra.ActivityIndicator;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import java.awt.*;
-
-import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
+import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.MODELESS;
-import static org.httprpc.sierra.HorizontalAlignment.CENTER;
 import static org.httprpc.sierra.UIBuilder.*;
 
-public class DiaryLoadScreen extends JDialog {
+public class DiaryLoadDialog extends JDialog {
     private static final String TITLE = "Please wait...";
     public DiaryFrame parent;
 
@@ -21,11 +19,12 @@ public class DiaryLoadScreen extends JDialog {
     public TextPane taskDoing;
     public ActivityIndicator loadingIcon;
 
-    public DiaryLoadScreen(DiaryFrame parent) {
+    public DiaryLoadDialog(DiaryFrame parent) {
         super(parent);
         this.parent = parent;
         buildContentPane();
 
+        setIconImage(IMAGE_ICON);
         setModal(false);
         setModalityType(MODELESS);
         setTitle(TITLE);
