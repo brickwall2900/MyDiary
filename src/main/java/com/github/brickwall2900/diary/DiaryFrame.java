@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import static com.github.brickwall2900.diary.DiarySetup.applyConfiguration;
 import static com.github.brickwall2900.diary.DiarySetup.askForKey;
+import static com.github.brickwall2900.diary.DiaryStore.load;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.APPROVE_OPTION;
 import static javax.swing.JOptionPane.*;
@@ -355,12 +356,21 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         String message = DiaryStore.DIARY_FILE.equals(f) ? "Are you sure you want to reload? (This won't save the current file before reloading!)"
                 : "Are you sure you want to reload from a backup? (Saving after opening will overwrite the main file and this won't save the current file before reloading!)";
         if (JOptionPane.showConfirmDialog(this, message, TITLE, YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION) {
-            askForKey();
-            DiaryStore.load(f);
-            applyConfiguration(this, DiaryStore.CONFIGURATION);
-            DiaryMarkdownToHTML.MD_TO_HTML_CACHE.clear();
-            currentEntry = null;
-            loadToHelpPage();
+            try {
+                askForKey();
+                load(f);
+                applyConfiguration(this, DiaryStore.CONFIGURATION);
+                DiaryMarkdownToHTML.MD_TO_HTML_CACHE.clear();
+                currentEntry = null;
+                loadToHelpPage();
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Cannot do a reload: " + e.getMessage() + "\nThat's bad...", TITLE, ERROR_MESSAGE);
+                Main.INSTANCE.errorMessage.showErrorMessage(e);
+                if (loadDialog.isShowing()) {
+                    loadDialog.closeLoadDialog();
+                }
+            }
         }
     }
 

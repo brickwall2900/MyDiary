@@ -14,13 +14,10 @@ public class Main {
         try {
             INSTANCE.setup();
             INSTANCE.start();
-        } catch (Exception e) { // greatest exception handling ever
+        } catch (Throwable e) { // greatest exception handling ever
             e.printStackTrace();
-            try (TextAreaOutputStream outputStream = new TextAreaOutputStream(INSTANCE.errorMessage.textArea);
-                 PrintWriter printWriter = new PrintWriter(outputStream, true)) {
-                e.printStackTrace(printWriter);
-                INSTANCE.errorMessage.setVisible(true);
-            }
+            INSTANCE.errorMessage.showErrorMessage(e);
+            System.exit(1);
         }
     }
 

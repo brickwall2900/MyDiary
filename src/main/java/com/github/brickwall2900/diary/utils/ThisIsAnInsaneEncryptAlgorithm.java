@@ -24,7 +24,7 @@ import java.util.UUID;
 public class ThisIsAnInsaneEncryptAlgorithm {
     private static final SecureRandom RANDOM;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final byte[] SALT;
 
     static {
@@ -42,23 +42,27 @@ public class ThisIsAnInsaneEncryptAlgorithm {
                         .toURI()).getPath())) {
                     byte[] b = fis.readAllBytes();
                     SALT = digest.digest(b);
-                    eraseData(b);
+                    eraseDataFast(b);
                 }
             } catch (NoSuchAlgorithmException | IOException | URISyntaxException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            SALT = new byte[] {
+            SALT = new byte[] { // use a pre-defined salt instead
                     (byte) -102, (byte) 117, (byte) 31, (byte) 35, (byte) 84, (byte) 92, (byte) 100, (byte) 38, (byte) -97, (byte) 62, (byte) -113, (byte) -122, (byte) 103, (byte) 120, (byte) 83, (byte) 46
             };
         }
     }
 
     public static void eraseData(byte[] bytes) {
-//        System.out.println("erasing data worth " + bytes.length + " bytes");
         for (int i = 0; i < bytes.length / 2; i++) {
             RANDOM.nextBytes(bytes);
         }
+        Arrays.fill(bytes, (byte) 0);
+    }
+
+    public static void eraseDataFast(byte[] bytes) {
+        RANDOM.nextBytes(bytes);
         Arrays.fill(bytes, (byte) 0);
     }
 
