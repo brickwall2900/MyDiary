@@ -1,4 +1,4 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.diary.dialogs;
 
 import org.httprpc.sierra.TextPane;
 

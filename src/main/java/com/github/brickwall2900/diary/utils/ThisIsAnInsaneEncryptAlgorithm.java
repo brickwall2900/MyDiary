@@ -1,6 +1,6 @@
-package com.github.brickwall2900.utils;
+package com.github.brickwall2900.diary.utils;
 
-import com.github.brickwall2900.Main;
+import com.github.brickwall2900.diary.Main;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -20,10 +20,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
+
 public class ThisIsAnInsaneEncryptAlgorithm {
     private static final SecureRandom RANDOM;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final byte[] SALT;
 
     static {
@@ -47,7 +48,6 @@ public class ThisIsAnInsaneEncryptAlgorithm {
                 throw new RuntimeException(e);
             }
         } else {
-//            RANDOM.nextBytes(SALT = new byte[32]);
             SALT = new byte[] {
                     (byte) -102, (byte) 117, (byte) 31, (byte) 35, (byte) 84, (byte) 92, (byte) 100, (byte) 38, (byte) -97, (byte) 62, (byte) -113, (byte) -122, (byte) 103, (byte) 120, (byte) 83, (byte) 46
             };
@@ -55,6 +55,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
     }
 
     public static void eraseData(byte[] bytes) {
+//        System.out.println("erasing data worth " + bytes.length + " bytes");
         for (int i = 0; i < bytes.length / 2; i++) {
             RANDOM.nextBytes(bytes);
         }

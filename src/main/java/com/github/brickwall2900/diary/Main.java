@@ -1,7 +1,8 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.diary;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.github.brickwall2900.utils.TextAreaOutputStream;
+import com.github.brickwall2900.diary.dialogs.DiaryErrorMessage;
+import com.github.brickwall2900.diary.utils.TextAreaOutputStream;
 
 import javax.swing.*;
 import java.io.PrintWriter;

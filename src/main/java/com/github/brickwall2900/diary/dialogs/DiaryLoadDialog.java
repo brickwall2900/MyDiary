@@ -1,13 +1,13 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryFrame;
 import org.httprpc.sierra.ActivityIndicator;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.MODELESS;
 import static org.httprpc.sierra.UIBuilder.*;
 
@@ -48,12 +48,6 @@ public class DiaryLoadDialog extends JDialog {
         setTaskName(task);
         setProgress(progress);
         setVisible(true);
-    }
-
-    @Override
-    public void setVisible(boolean b) {
-        super.setVisible(b);
-        parent.getGlassPane().setVisible(b);
     }
 
     public void openLoadDialog() {

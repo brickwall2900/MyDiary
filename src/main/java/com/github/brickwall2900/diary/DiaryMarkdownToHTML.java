@@ -1,6 +1,6 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.diary;
 
-import com.github.brickwall2900.dialogs.DiaryLoadDialog;
+import com.github.brickwall2900.diary.dialogs.DiaryLoadDialog;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -8,7 +8,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 

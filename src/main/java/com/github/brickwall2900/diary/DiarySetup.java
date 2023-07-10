@@ -1,19 +1,17 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.diary;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
-import com.github.brickwall2900.dialogs.DiaryPasswordDialog;
-import com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm;
+import com.github.brickwall2900.diary.dialogs.DiaryPasswordDialog;
+import com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm;
 import org.httprpc.sierra.TaskExecutor;
 
 import javax.swing.*;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.github.brickwall2900.Main.INSTANCE;
-import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.eraseData;
-import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString;
+import static com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm.eraseData;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.swing.JOptionPane.*;
 
@@ -26,7 +24,7 @@ public class DiarySetup {
         byte iterations = askIterations();
         long uid1 = askRandomNumber();
         char[] uid2 = askPassword();
-        key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, generateUUIDFromString(uid2));
+        key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString(uid2));
     }
 
     public static void setup() {
@@ -37,8 +35,8 @@ public class DiarySetup {
             char[] uid2 = askPassword();
             confirmed = confirmOptions(iterations, uid1, uid2);
             if (confirmed == YES_OPTION) {
-                key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, generateUUIDFromString(uid2));
-                eraseData(uid2);
+                key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString(uid2));
+                ThisIsAnInsaneEncryptAlgorithm.eraseData(uid2);
             } else if (confirmed == CANCEL_OPTION) {
                 System.exit(0);
             }
@@ -87,7 +85,7 @@ public class DiarySetup {
     }
 
     private static char[] askPassword() {
-        DiaryPasswordDialog passwordDialog = INSTANCE.frame.passwordDialog;
+        DiaryPasswordDialog passwordDialog = Main.INSTANCE.frame.passwordDialog;
         char[] pwd = passwordDialog.askPassword();
         if (pwd == null) {
             throwIllegalArgument("Password not entered!");

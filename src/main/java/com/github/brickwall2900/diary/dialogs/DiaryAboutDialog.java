@@ -1,18 +1,13 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryException;
-import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryStore;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.io.IOException;
-import java.util.Objects;
 
-import static com.github.brickwall2900.DiaryFrame.ICON;
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
-import static com.github.brickwall2900.DiaryStore.FILE_VERSION;
-import static com.github.brickwall2900.DiaryStore.USERNAME;
+import static com.github.brickwall2900.diary.DiaryFrame.ICON;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static org.httprpc.sierra.UIBuilder.*;
 
@@ -71,7 +66,7 @@ public class DiaryAboutDialog extends JDialog {
                 <p>... and you are %s!</p>
                 
                 <em><strong>(WARNING: THIS APPLICATION DOES NOT GUARANTEE 100%% SECURITY WITH ALL YOUR PRIVATE SECRETS!)</strong></em>
-                """.formatted(FILE_VERSION, USERNAME));
+                """.formatted(DiaryStore.FILE_VERSION, DiaryStore.USERNAME));
         setVisible(true);
     }
 }

@@ -1,7 +1,7 @@
-package com.github.brickwall2900;
+package com.github.brickwall2900.diary;
 
-import com.github.brickwall2900.dialogs.DiaryLoadDialog;
-import com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm;
+import com.github.brickwall2900.diary.dialogs.DiaryLoadDialog;
+import com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm;
 
 import javax.swing.*;
 import java.io.*;
@@ -15,9 +15,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.github.brickwall2900.DiaryFrame.TITLE;
-import static com.github.brickwall2900.Main.INSTANCE;
-import static com.github.brickwall2900.utils.ThisIsAnInsaneEncryptAlgorithm.*;
+import static com.github.brickwall2900.diary.DiaryFrame.TITLE;
+import static com.github.brickwall2900.diary.Main.INSTANCE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 
@@ -87,7 +86,7 @@ public class DiaryStore {
         SwingUtilities.invokeLater(() -> load.openLoadDialog("Restoring Diary state...", 100));
         if (key != null) {
             try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
-                 ByteArrayInputStream bis = new ByteArrayInputStream(decrypt(key, fis.readAllBytes()));
+                 ByteArrayInputStream bis = new ByteArrayInputStream(ThisIsAnInsaneEncryptAlgorithm.decrypt(key, fis.readAllBytes()));
                  GZIPInputStream gis = new GZIPInputStream(bis);
                  ObjectInputStream ois = new ObjectInputStream(gis)) {
 
@@ -124,11 +123,11 @@ public class DiaryStore {
                 gos.flush();
                 byte[] raw = bos.toByteArray();
                 SwingUtilities.invokeLater(() -> load.openLoadDialog("Encrypting...", 75));
-                byte[] enc = encrypt(key, raw);
+                byte[] enc = ThisIsAnInsaneEncryptAlgorithm.encrypt(key, raw);
                 SwingUtilities.invokeLater(() -> load.openLoadDialog("Writing...", 100));
                 fos.write(enc);
-                eraseData(enc);
-                eraseData(raw);
+                ThisIsAnInsaneEncryptAlgorithm.eraseData(enc);
+                ThisIsAnInsaneEncryptAlgorithm.eraseData(raw);
                 SwingUtilities.invokeLater(load::closeLoadDialog);
             } catch (IOException e) {
                 throw new DiaryException("Error saving to file!", e);

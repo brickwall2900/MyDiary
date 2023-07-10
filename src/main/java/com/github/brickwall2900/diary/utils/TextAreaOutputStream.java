@@ -1,4 +1,4 @@
-package com.github.brickwall2900.utils;
+package com.github.brickwall2900.diary.utils;
 
 import javax.swing.*;
 import java.io.OutputStream;

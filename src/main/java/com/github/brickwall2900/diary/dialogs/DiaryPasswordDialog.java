@@ -1,6 +1,6 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryFrame;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
@@ -8,7 +8,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static java.awt.event.KeyEvent.VK_ESCAPE;

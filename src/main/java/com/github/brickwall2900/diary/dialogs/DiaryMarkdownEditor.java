@@ -1,7 +1,7 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryFrame;
-import com.github.brickwall2900.DiaryStore;
+import com.github.brickwall2900.diary.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryStore;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -15,8 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
-import static com.github.brickwall2900.DiaryStore.ENTRIES;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.SYNTAX_STYLE_MARKDOWN;
@@ -100,7 +99,7 @@ public class DiaryMarkdownEditor extends JDialog {
     }
 
     public void saveAndUpdate() {
-        ENTRIES.put(entry, textArea.getText());
+        DiaryStore.ENTRIES.put(entry, textArea.getText());
         parent.updatePanelWithEntry(entry);
     }
 }

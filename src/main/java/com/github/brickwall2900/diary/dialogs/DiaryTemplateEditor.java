@@ -1,6 +1,6 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryFrame;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -13,7 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.SYNTAX_STYLE_MARKDOWN;

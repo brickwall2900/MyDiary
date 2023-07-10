@@ -1,6 +1,6 @@
-package com.github.brickwall2900.dialogs;
+package com.github.brickwall2900.diary.dialogs;
 
-import com.github.brickwall2900.DiaryStore;
+import com.github.brickwall2900.diary.DiaryStore;
 import org.httprpc.sierra.TextPane;
 
 import javax.swing.*;
@@ -10,8 +10,8 @@ import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.brickwall2900.DiaryFrame.IMAGE_ICON;
-import static com.github.brickwall2900.DiaryStore.getSortedEntryList;
+import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.DiaryStore.getSortedEntryList;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
