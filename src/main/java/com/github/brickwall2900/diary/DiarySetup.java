@@ -18,8 +18,6 @@ import static javax.swing.JOptionPane.*;
 public class DiarySetup {
     protected static ThisIsAnInsaneEncryptAlgorithm.Key key = null;
 
-    public static final TaskExecutor TASK_EXECUTOR = new TaskExecutor(new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, SECONDS, new SynchronousQueue<Runnable>()));
-
     public static void askForKey() {
         byte iterations = askIterations();
         long uid1 = askRandomNumber();

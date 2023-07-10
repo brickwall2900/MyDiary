@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import static com.github.brickwall2900.diary.DiarySetup.applyConfiguration;
 import static com.github.brickwall2900.diary.DiarySetup.askForKey;
+import static com.github.brickwall2900.diary.DiaryStore.currentEntry;
 import static com.github.brickwall2900.diary.DiaryStore.load;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.APPROVE_OPTION;
@@ -72,8 +73,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     public DiaryPasswordDialog passwordDialog;
 
     public JFileChooser fileChooser;
-
-    public DiaryStore.DiaryEntry currentEntry;
 
     public DiaryFrame() {
         buildMenuBar();

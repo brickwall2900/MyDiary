@@ -77,6 +77,6 @@ public class DiaryLoadDialog extends JDialog {
 
     public void closeLoadDialog() {
         loadingIcon.stop();
-        setVisible(false);
+        dispose();
     }
 }

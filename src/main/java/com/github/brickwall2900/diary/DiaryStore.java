@@ -54,6 +54,8 @@ public class DiaryStore {
     }
     public static Map<DiaryEntry, String> ENTRIES = new HashMap<>();
 
+    public static DiaryStore.DiaryEntry currentEntry;
+
     public static DiaryConfiguration CONFIGURATION = new DiaryConfiguration();
     static {
         USERNAME = System.getProperty("user.name");
