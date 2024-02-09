@@ -2,10 +2,10 @@ package com.github.brickwall2900.diary;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.github.brickwall2900.diary.dialogs.DiaryErrorMessage;
-import com.github.brickwall2900.diary.utils.TextAreaOutputStream;
 
 import javax.swing.*;
-import java.io.PrintWriter;
+
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 
 public class Main {
     public static final Main INSTANCE = new Main();
@@ -48,7 +48,7 @@ public class Main {
 
     private boolean askCreate() {
         return JOptionPane.showConfirmDialog(null,
-                "Hello %s! Would you like to create a new diary now?".formatted(DiaryStore.USERNAME),
-                DiaryFrame.TITLE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                text("password.firstTime", DiaryStore.USERNAME),
+                text("title"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 }

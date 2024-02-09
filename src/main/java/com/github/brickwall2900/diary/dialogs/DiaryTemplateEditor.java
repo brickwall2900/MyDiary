@@ -14,13 +14,14 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.SYNTAX_STYLE_MARKDOWN;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryTemplateEditor extends JDialog {
-    public static final String TITLE = "Template Editor";
+    public static final String TITLE = text("editor.template.title");
 
     public TextPane editLabel;
     public RTextScrollPane scrollPane;
@@ -74,11 +75,11 @@ public class DiaryTemplateEditor extends JDialog {
 
     private void buildContentPane() {
         setContentPane(column(4,
-                cell(editLabel = new TextPane("Template Editor: {name} resolves to the name inputted, and {time} resolves to the formatted time inputted.")),
+                cell(editLabel = new TextPane(text("editor.template.header"))),
                 cell(scrollPane = new RTextScrollPane(textArea = new RSyntaxTextArea())).weightBy(1),
                 row(4,
                         glue(),
-                        cell(editButton = new JButton("Edit")))
+                        cell(editButton = new JButton(text("editor.editButton"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 }

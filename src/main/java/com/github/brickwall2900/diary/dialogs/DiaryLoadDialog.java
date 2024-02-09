@@ -8,11 +8,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.MODELESS;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryLoadDialog extends JDialog {
-    private static final String TITLE = "Please wait...";
+    private static final String TITLE = text("loadDialog.title");
     public DiaryFrame parent;
 
     public JProgressBar progressBar;

@@ -12,13 +12,14 @@ import java.util.List;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static com.github.brickwall2900.diary.DiaryStore.getSortedEntryList;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryJumpToEntryDialog extends JDialog {
-    public static final String TITLE = "Jump to an Entry";
+    public static final String TITLE = text("jump.title");
 
     public TextPane nameLabel;
     public JList<DiaryStore.DiaryEntry> entries;
@@ -60,13 +61,13 @@ public class DiaryJumpToEntryDialog extends JDialog {
 
     private void buildContentPane() {
         setContentPane(column(4,
-                cell(nameLabel = new TextPane("Name:")),
+                cell(nameLabel = new TextPane(text("jump.header"))),
                 cell(entries = new JList<>()).weightBy(1),
                 row(4,
-                        cell(reverseOrderCheckBox = new JCheckBox("Newest First")),
+                        cell(reverseOrderCheckBox = new JCheckBox(text("jump.newestFirst"))),
                         glue(),
-                        cell(jumpButton = new JButton("Jump")),
-                        cell(cancelButton = new JButton("Cancel")))
+                        cell(jumpButton = new JButton(text("jump.jumpButton"))),
+                        cell(cancelButton = new JButton(text("dialog.cancel"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 

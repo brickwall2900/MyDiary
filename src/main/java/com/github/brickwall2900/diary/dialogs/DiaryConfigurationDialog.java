@@ -8,18 +8,25 @@ import org.httprpc.sierra.TextPane;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static javax.swing.SwingUtilities.updateComponentTreeUI;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryConfigurationDialog extends JDialog {
-    public static final String TITLE = "Configuration";
+    public static final String TITLE = text("config.title");
 
     public TextPane darkModeLabel;
     public JCheckBox darkModeCheckBox;
 
     public TextPane timeFormattingLabel;
     public JTextField timeFormattingField;
+    public JButton timeFormattingHelpButton;
 
     public TextPane templateEditLabel;
     public JButton templateEditButton;
@@ -44,9 +51,15 @@ public class DiaryConfigurationDialog extends JDialog {
 
         templateEditButton.addActionListener(e -> templateEditor.setVisible(true));
 
-        darkModeCheckBox.setToolTipText("Enables dark mode on UI or not.");
-        timeFormattingField.setToolTipText("The formatting used for creating new entries in the diary. (https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)");
-        templateEditButton.setToolTipText("Edits the template used for creating new entries in the diary. {name} resolves to the name inputted, and {time} resolves to the formatted time inputted.");
+        timeFormattingHelpButton.addActionListener(e -> {
+            try {
+                openLink(new URI("https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html"));
+            } catch (URISyntaxException ex) {}
+        });
+
+        darkModeCheckBox.setToolTipText(text("config.darkMode.tooltip"));
+        timeFormattingField.setToolTipText(text("config.timeFormat.tooltip"));
+        templateEditButton.setToolTipText(text("config.template.tooltip"));
 
         setIconImage(DiaryFrame.IMAGE_ICON);
         setModal(true);
@@ -60,19 +73,20 @@ public class DiaryConfigurationDialog extends JDialog {
     private void buildContentPane() {
         setContentPane(column(4,
                 row(6,
-                        cell(darkModeLabel = new TextPane("Dark Mode:")),
+                        cell(darkModeLabel = new TextPane(text("config.darkMode.label"))),
                         cell(darkModeCheckBox = new JCheckBox())),
                 row(6,
-                        cell(timeFormattingLabel = new TextPane("Time Formatting:")),
-                        cell(timeFormattingField = new JTextField()).weightBy(1)),
+                        cell(timeFormattingLabel = new TextPane(text("config.timeFormat.label"))),
+                        cell(timeFormattingField = new JTextField()).weightBy(1),
+                        cell(timeFormattingHelpButton = new JButton(text("dialog.question")))),
                 row(6,
-                        cell(templateEditLabel = new TextPane("Template:")),
-                        cell(templateEditButton = new JButton("Edit..."))),
+                        cell(templateEditLabel = new TextPane(text("config.template.label"))),
+                        cell(templateEditButton = new JButton(text("config.template.edit")))),
                 glue(),
                 row(4,
                         glue(),
-                        cell(okButton = new JButton("OK")),
-                        cell(cancelButton = new JButton("Cancel")))
+                        cell(okButton = new JButton(text("dialog.ok"))),
+                        cell(cancelButton = new JButton(text("dialog.cancel"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 
@@ -103,5 +117,13 @@ public class DiaryConfigurationDialog extends JDialog {
             DiarySetup.applyConfiguration(parent, configuration);
         }
         canceled = true;
+    }
+
+    public static void openLink(URI uri) {
+        try {
+            Desktop.getDesktop().browse(uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

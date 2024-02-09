@@ -21,6 +21,8 @@ import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
+
 public class ThisIsAnInsaneEncryptAlgorithm {
     private static final SecureRandom RANDOM;
 
@@ -228,7 +230,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
     private static byte[] decryptStage1(byte[] bytes, byte iterations, long uid, UUID uuid) throws Exception {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
             byte[] iv = new byte[16];
-            if (bis.read(iv) != 16) throw new IOException("File malformed?");
+            if (bis.read(iv) != 16) throw new IOException(text("error.decrypt.fileMalformed"));
             char[] password = generatePassword(uid, uuid);
             try (CipherInputStream inputStream = new CipherInputStream(bis, decrypt(password, iv))) {
                 return decryptStage2(inputStream.readAllBytes(), iterations, uid, uuid);
@@ -243,7 +245,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
             byte[] enc = (byte[]) ois.readObject();
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] newDigestedBytes = digest.digest(enc);
-            if (!Arrays.equals(digestedBytes, newDigestedBytes)) throw new IOException("File corrupted!");
+            if (!Arrays.equals(digestedBytes, newDigestedBytes)) throw new IOException(text("error.decrypt.fileCorrupted"));
             return decryptStage3(enc, iterations, uid, uuid);
         }
     }

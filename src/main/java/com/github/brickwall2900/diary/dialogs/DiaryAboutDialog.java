@@ -8,11 +8,12 @@ import javax.swing.border.EmptyBorder;
 
 import static com.github.brickwall2900.diary.DiaryFrame.ICON;
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryAboutDialog extends JDialog {
-    public static final String TITLE = "About";
+    public static final String TITLE = text("about.title");
 
     public JLabel icon;
     public JEditorPane aboutArea;
@@ -50,23 +51,13 @@ public class DiaryAboutDialog extends JDialog {
                 glue(),
                 row(4,
                         glue(),
-                        cell(closeButton = new JButton("Close")))
+                        cell(closeButton = new JButton(text("dialog.close"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 
     public void showAboutScreen() {
         aboutArea.setContentType("text/html");
-        aboutArea.setText("""
-                <h1>The Diary</h1>
-                
-                <p>Made <strike>with no effort</strike> by <em>brickwall2900</em></p>
-                 
-                <p>Current File Version: %d</p>
-                
-                <p>... and you are %s!</p>
-                
-                <em><strong>(WARNING: THIS APPLICATION DOES NOT GUARANTEE 100%% SECURITY WITH ALL YOUR PRIVATE SECRETS!)</strong></em>
-                """.formatted(DiaryStore.FILE_VERSION, DiaryStore.USERNAME));
+        aboutArea.setText(text("about.content", DiaryStore.FILE_VERSION, DiaryStore.USERNAME));
         setVisible(true);
     }
 }

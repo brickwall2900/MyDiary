@@ -9,13 +9,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryPasswordDialog extends JDialog {
-    public static final String TITLE = "Password, please";
+    public static final String TITLE = text("password.title");
 
     public TextPane passwordLabel;
     public JPasswordField passwordField;
@@ -56,15 +57,16 @@ public class DiaryPasswordDialog extends JDialog {
 
     private void buildContentPane() {
         setContentPane(column(4,
-                cell(passwordLabel = new TextPane("Please enter your password:")),
+                cell(passwordLabel = new TextPane(text("password.header"))),
                 cell(passwordField = new JPasswordField()).weightBy(1),
                 row(4,
                         glue(),
-                        cell(enterButton = new JButton("Enter")))
+                        cell(enterButton = new JButton(text("password.enter"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 
     public char[] askPassword() {
+        passwordField.setText("");
         setVisible(true);
         char[] pwd = null;
         if (!canceled) {

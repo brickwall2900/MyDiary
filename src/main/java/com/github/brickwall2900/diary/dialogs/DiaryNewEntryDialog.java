@@ -13,13 +13,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.httprpc.sierra.UIBuilder.*;
 import static org.httprpc.sierra.VerticalAlignment.BOTTOM;
 
 public class DiaryNewEntryDialog extends JDialog {
-    public static final String TITLE = "Create a new Entry";
+    public static final String TITLE = text("newEntry.title");
 
     public TextPane nameLabel;
     public JTextField nameField;
@@ -67,19 +68,19 @@ public class DiaryNewEntryDialog extends JDialog {
     private void buildContentPane() {
         setContentPane(column(4,
                 row(6,
-                        cell(nameLabel = new TextPane("Name:")),
+                        cell(nameLabel = new TextPane(text("newEntry.name.label"))),
                         cell(nameField = new JTextField()).weightBy(1)),
                 row(6,
-                        cell(dateLabel = new TextPane("Date:")),
+                        cell(dateLabel = new TextPane(text("newEntry.date.label"))),
                         cell(datePicker = new DatePicker()).weightBy(1)),
                 row(6,
-                        cell(timeLabel = new TextPane("Time:")),
+                        cell(timeLabel = new TextPane(text("newEntry.time.label"))),
                         cell(timePicker = new TimePicker()).weightBy(1)),
                 glue(),
                 row(4,
                         glue(),
-                        cell(createButton = new JButton("Create!")),
-                        cell(cancelButton = new JButton("Cancel")))
+                        cell(createButton = new JButton(text("newEntry.createButton"))),
+                        cell(cancelButton = new JButton(text("dialog.cancel"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 

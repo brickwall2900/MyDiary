@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.github.brickwall2900.diary.DiaryFrame.TITLE;
 import static com.github.brickwall2900.diary.Main.INSTANCE;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 
@@ -42,7 +42,7 @@ public class DiaryStore {
         public String toString() {
             LocalDateTime dateTime = LocalDateTime.of(date, time);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CONFIGURATION.timeFormat);
-            return name + ", created on " + formatter.format(dateTime);
+            return text("entry.info", name, formatter.format(dateTime));
         }
         @Override
         public int compareTo(DiaryEntry o) {
@@ -74,7 +74,7 @@ public class DiaryStore {
             for (int i = 0; i < 10 || DIARY_FILE.createNewFile(); i++);
             return true;
         } catch (IOException e) {
-            throw new DiaryException("Error creating file!", e);
+            throw new DiaryException(text("store.error.createFile"), e);
         }
     }
 
@@ -85,7 +85,7 @@ public class DiaryStore {
     protected static void load(File file) {
         ThisIsAnInsaneEncryptAlgorithm.Key key = DiarySetup.key;
         DiaryLoadDialog load = INSTANCE.frame.loadDialog;
-        SwingUtilities.invokeLater(() -> load.openLoadDialog("Restoring Diary state...", 100));
+        SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.load.dialog"), 100));
         if (key != null) {
             try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
                  ByteArrayInputStream bis = new ByteArrayInputStream(ThisIsAnInsaneEncryptAlgorithm.decrypt(key, fis.readAllBytes()));
@@ -96,15 +96,14 @@ public class DiaryStore {
                 if (state.fileVersion == FILE_VERSION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
-                } else if (JOptionPane.showConfirmDialog(null, "The fileVersion you've loaded is incompatible with the current fileVersion! (%d (prog. ver.) != %d (file ver.))\n".formatted(FILE_VERSION, state.fileVersion) +
-                        "Are you sure you want to continue?", TITLE, YES_NO_OPTION) == YES_OPTION) {
+                } else if (JOptionPane.showConfirmDialog(null, text("store.warning.incompatibleVersion", FILE_VERSION, state.fileVersion), text("text.title"), YES_NO_OPTION) == YES_OPTION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
                 } else {
-                    throw new DiaryException("Incompatible versions!");
+                    throw new DiaryException(text("store.error.incompatibleVersion"));
                 }
             } catch (IOException | ClassNotFoundException e) {
-                throw new DiaryException("Error loading from file!", e);
+                throw new DiaryException(text("store.error.load"), e);
             }
         }
         SwingUtilities.invokeLater(load::closeLoadDialog);
@@ -118,21 +117,21 @@ public class DiaryStore {
                  GZIPOutputStream gos = new GZIPOutputStream(bos, true);
                  ObjectOutputStream oos = new ObjectOutputStream(gos)) {
                 DiaryLoadDialog load = INSTANCE.frame.loadDialog;
-                SwingUtilities.invokeLater(() -> load.openLoadDialog("Saving...", 25));
+                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.save"), 25));
                 oos.writeObject(new DiaryState(CONFIGURATION, ENTRIES, FILE_VERSION));
                 oos.flush();
-                SwingUtilities.invokeLater(() -> load.openLoadDialog("Compressing...", 50));
+                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.compress"), 50));
                 gos.flush();
                 byte[] raw = bos.toByteArray();
-                SwingUtilities.invokeLater(() -> load.openLoadDialog("Encrypting...", 75));
+                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.encrypt"), 75));
                 byte[] enc = ThisIsAnInsaneEncryptAlgorithm.encrypt(key, raw);
-                SwingUtilities.invokeLater(() -> load.openLoadDialog("Writing...", 100));
+                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.write"), 100));
                 fos.write(enc);
                 ThisIsAnInsaneEncryptAlgorithm.eraseData(enc);
                 ThisIsAnInsaneEncryptAlgorithm.eraseData(raw);
                 SwingUtilities.invokeLater(load::closeLoadDialog);
             } catch (IOException e) {
-                throw new DiaryException("Error saving to file!", e);
+                throw new DiaryException(text("store.error.save"), e);
             }
         }
     }

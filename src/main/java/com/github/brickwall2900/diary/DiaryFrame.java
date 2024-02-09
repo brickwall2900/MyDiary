@@ -25,13 +25,14 @@ import static com.github.brickwall2900.diary.DiarySetup.applyConfiguration;
 import static com.github.brickwall2900.diary.DiarySetup.askForKey;
 import static com.github.brickwall2900.diary.DiaryStore.currentEntry;
 import static com.github.brickwall2900.diary.DiaryStore.load;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.APPROVE_OPTION;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.SwingUtilities.updateComponentTreeUI;
 
 public class DiaryFrame extends JFrame implements ActionListener, WindowListener {
-    public static final String TITLE = "The Diary";
+    public static final String TITLE = text("title");
     public static final Image IMAGE_ICON;
     public static final ImageIcon ICON;
 
@@ -103,18 +104,18 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     private void loadToHelpPage() {
         try {
-            htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(DiaryMarkdownToHTML.DIARY_HELP_PREDEF).getBytes(Charset.defaultCharset())), null);
+            htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.help")).getBytes(Charset.defaultCharset())), null);
         } catch (Exception e) {
-            throw new DiaryException("Error opening starting page!", e);
+            throw new DiaryException(text("error.startPage"), e);
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Menu Bar Instantiation">
     private void buildMenuBar() {
         menuBar = new JMenuBar();
-        fileMenu = new JMenu("File");
-        entriesMenu = new JMenu("Entries");
-        aboutMenu = new JMenu("About");
+        fileMenu = new JMenu(text("menu.file"));
+        entriesMenu = new JMenu(text("menu.entries"));
+        aboutMenu = new JMenu(text("menu.about"));
 
         buildFileMenu();
         buildAboutMenu();
@@ -128,58 +129,58 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     }
 
     private void buildFileMenu() {
-        saveItem = new JMenuItem("Save");
+        saveItem = new JMenuItem(text("menu.file.save"));
         saveItem.setAccelerator(KeyStroke.getKeyStroke(VK_S, CTRL_DOWN_MASK));
         saveItem.addActionListener(this);
 
-        reloadItem = new JMenuItem("Reload");
+        reloadItem = new JMenuItem(text("menu.file.reload"));
         reloadItem.setAccelerator(KeyStroke.getKeyStroke(VK_R, CTRL_DOWN_MASK));
         reloadItem.addActionListener(this);
 
         separator2 = new JSeparator();
 
-        backupItem = new JMenuItem("Backup");
+        backupItem = new JMenuItem(text("menu.file.backup"));
         backupItem.setAccelerator(KeyStroke.getKeyStroke(VK_S, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         backupItem.addActionListener(this);
 
-        loadFromBackupItem = new JMenuItem("Load from Backup");
+        loadFromBackupItem = new JMenuItem(text("menu.file.loadBackup"));
         loadFromBackupItem.setAccelerator(KeyStroke.getKeyStroke(VK_O, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         loadFromBackupItem.addActionListener(this);
     }
 
     private void buildAboutMenu() {
-        preferencesMenu = new JMenuItem("Configuration");
+        preferencesMenu = new JMenuItem(text("menu.about.preferences"));
         preferencesMenu.setAccelerator(KeyStroke.getKeyStroke(VK_ENTER, CTRL_DOWN_MASK));
         preferencesMenu.addActionListener(this);
 
-        aboutItem = new JMenuItem("About");
+        aboutItem = new JMenuItem(text("menu.about.item"));
         aboutItem.addActionListener(this);
     }
 
     private void buildEntriesMenu() {
-        newEntryItem = new JMenuItem("New");
+        newEntryItem = new JMenuItem(text("menu.entries.new"));
         newEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_N, CTRL_DOWN_MASK));
         newEntryItem.addActionListener(this);
 
-        editEntryItem = new JMenuItem("Edit");
+        editEntryItem = new JMenuItem(text("menu.entries.edit"));
         editEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_E, CTRL_DOWN_MASK));
         editEntryItem.addActionListener(this);
 
-        jumpToEntryItem = new JMenuItem("Jump to...");
+        jumpToEntryItem = new JMenuItem(text("menu.entries.jump"));
         jumpToEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_F, CTRL_DOWN_MASK));
         jumpToEntryItem.addActionListener(this);
 
-        removeEntryItem = new JMenuItem("Remove");
+        removeEntryItem = new JMenuItem(text("menu.entries.remove"));
         removeEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_DELETE, 0));
         removeEntryItem.addActionListener(this);
 
         separator1 = new JSeparator();
 
-        nextEntryItem = new JMenuItem("Next");
+        nextEntryItem = new JMenuItem(text("menu.entries.next"));
         nextEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_RIGHT, 0));
         nextEntryItem.addActionListener(this);
 
-        prevEntryItem = new JMenuItem("Previous");
+        prevEntryItem = new JMenuItem(text("menu.entries.previous"));
         prevEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_LEFT, 0));
         prevEntryItem.addActionListener(this);
     }
@@ -236,7 +237,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         if (entry != null) {
             boolean overwrite = !DiaryStore.ENTRIES.containsKey(entry);
             if (!overwrite) {
-                int confirmOverwrite = JOptionPane.showConfirmDialog(this, "Are you sure you want to overwrite this entry?", TITLE, YES_NO_OPTION, WARNING_MESSAGE);
+                int confirmOverwrite = showConfirmDialog(this, text("dialog.overwrite"), TITLE, YES_NO_OPTION, WARNING_MESSAGE);
                 overwrite = confirmOverwrite == YES_OPTION;
             }
             if (overwrite) {
@@ -253,15 +254,15 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     public void removeCurrentEntry() {
         if (currentEntry != null) {
-            String[] options = {"Yes", "NO!"};
-            boolean confirmDelete = JOptionPane.showOptionDialog(this, "Are you sure you want to remove this entry? (CANNOT BE UNDONE!)", TITLE, DEFAULT_OPTION, WARNING_MESSAGE, null, options, options[1]) == 0;
+            String[] options = new String[] {text("dialog.yes"), text("dialog.no")};
+            boolean confirmDelete = showOptionDialog(this, text("dialog.removeEntry"), TITLE, DEFAULT_OPTION, WARNING_MESSAGE, null, options, options[1]) == 0;
             if (confirmDelete) {
                 DiaryStore.ENTRIES.put(currentEntry, "");
                 DiaryStore.ENTRIES.remove(currentEntry);
                 try {
-                    htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(DiaryMarkdownToHTML.ENTRY_REMOVED_MESSAGE_PREDEF).getBytes(Charset.defaultCharset())), null);
+                    htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.removed")).getBytes(Charset.defaultCharset())), null);
                 } catch (Exception e) {
-                    throw new DiaryException("Error removing an entry!", e);
+                    throw new DiaryException(text("error.removeEntry"), e);
                 }
                 currentEntry = null;
             }
@@ -274,7 +275,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             try {
                 htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(DiaryMarkdownToHTML.getHTMLFromMarkdown(content)).getBytes(Charset.defaultCharset())), null);
             } catch (Exception e) {
-                throw new DiaryException("HTML/Markdown Exception!", e);
+                throw new DiaryException(text("error.updateError"), e);
             }
         }
     }
@@ -283,7 +284,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         try {
             htmlPanel.setDocument(inputStream, null);
         } catch (Exception e) {
-            throw new DiaryException("HTML Exception!", e);
+            throw new DiaryException(text("error.updateDirectError"), e);
         }
     }
 
@@ -293,7 +294,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             editor.textArea.setText(content);
             editor.setEntryContext(entry);
             editor.setVisible(true);
-        }
+        } 
     }
 
     public void askJumpToEntry() {
@@ -333,6 +334,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         updateComponentTreeUI(fileChooser);
         updateComponentTreeUI(aboutDialog);
         updateComponentTreeUI(passwordDialog);
+        updateComponentTreeUI(Main.INSTANCE.errorMessage);
         configurationDialog.updateUI();
     }
 
@@ -340,21 +342,22 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         int val = fileChooser.showSaveDialog(this);
         if (val == APPROVE_OPTION) {
             File f = fileChooser.getSelectedFile();
-            try {
-                for (int i = 0; i < 10 || f.createNewFile(); i++);
-            } catch (IOException e) {
-                throw new DiaryException("Cannot create backup file!", e);
+            if (showConfirmDialog(this, text("dialog.backup", f), TITLE, YES_NO_OPTION, QUESTION_MESSAGE) == YES_OPTION) {
+                try {
+                    for (int i = 0; i < 10 || f.createNewFile(); i++) ;
+                } catch (IOException e) {
+                    throw new DiaryException(text("error.backup"), e);
+                }
+                Thread t = new Thread(() -> DiaryStore.save(f));
+                t.setName("Save Thread");
+                t.start();
             }
-            Thread t = new Thread(() -> DiaryStore.save(f));
-            t.setName("Save Thread");
-            t.start();
         }
     }
 
     public void reload(File f) {
-        String message = DiaryStore.DIARY_FILE.equals(f) ? "Are you sure you want to reload? (This won't save the current file before reloading!)"
-                : "Are you sure you want to reload from a backup? (Saving after opening will overwrite the main file and this won't save the current file before reloading!)";
-        if (JOptionPane.showConfirmDialog(this, message, TITLE, YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION) {
+        String message = DiaryStore.DIARY_FILE.equals(f) ? text("dialog.reload") : text("dialog.reloadBackup");
+        if (showConfirmDialog(this, message, TITLE, YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION) {
             try {
                 askForKey();
                 load(f);
@@ -364,7 +367,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
                 loadToHelpPage();
             } catch (Exception e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Cannot do a reload: " + e.getMessage() + "\nThat's bad...", TITLE, ERROR_MESSAGE);
+                showMessageDialog(this, text("dialog.reloadError", e.getMessage()), TITLE, ERROR_MESSAGE);
                 Main.INSTANCE.errorMessage.showErrorMessage(e);
                 if (loadDialog.isShowing()) {
                     loadDialog.closeLoadDialog();

@@ -11,6 +11,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
+
 public class DiaryMarkdownToHTML {
     private static class CacheRecord {
         final String content;
@@ -23,7 +25,6 @@ public class DiaryMarkdownToHTML {
 
     protected static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
 
-    private static final String LOAD_MESSAGE = "Please wait...";
 
     public static String getHTMLFromMarkdown(String md) {
         int givenHash = md.hashCode();
@@ -45,7 +46,7 @@ public class DiaryMarkdownToHTML {
                 }
             });
             entryLoader.execute();
-            toReturn = LOAD_MESSAGE;
+            toReturn = text("html.loader.message");
         }
         MD_TO_HTML_CACHE.entrySet().removeIf(entry -> (System.currentTimeMillis() - entry.getValue().time) >= entry.getValue().content.length() * 25L);
         return toReturn;
@@ -104,19 +105,19 @@ public class DiaryMarkdownToHTML {
             if (frame != null) {
                 SwingUtilities.invokeLater(() -> frame.loadDialog.openLoadDialog());
             }
-            setTask("Parsing...");
+            setTask(text("html.process.parse"));
             setProgress(0);
             Node document = Parser.builder().build().parse(markdown);
-            setTask("Converting into HTML...");
+            setTask(text("html.process.convert"));
             setProgress(33);
             String rendered = HtmlRenderer.builder().build().render(document);
-            setTask("Processing...");
+            setTask(text("html.process.process"));
             setProgress(66);
             ByteArrayInputStream bis = new ByteArrayInputStream(wrapHTMLIntoActualDocument(rendered).getBytes(Charset.defaultCharset()));
             CacheRecord record = new CacheRecord(rendered);
             record.time = System.currentTimeMillis();
             MD_TO_HTML_CACHE.put(markdown.hashCode(), record);
-            setTask("Rendering...");
+            setTask(text("html.process.render"));
             setProgress(100);
             // uhhh too dangerous
             if (frame != null) {

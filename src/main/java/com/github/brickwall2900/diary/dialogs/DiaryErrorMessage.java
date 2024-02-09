@@ -8,11 +8,12 @@ import javax.swing.border.EmptyBorder;
 
 import java.io.PrintWriter;
 
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryErrorMessage extends JDialog {
-    public static final String TITLE = "Error!";
+    public static final String TITLE = text("error.title");
 
     public TextPane editLabel;
     public JScrollPane textScrollPane;
@@ -38,12 +39,12 @@ public class DiaryErrorMessage extends JDialog {
 
     private void buildContentPane() {
         setContentPane(column(4,
-                cell(editLabel = new TextPane("An error has occurred!")),
+                cell(editLabel = new TextPane(text("error.message.header"))),
                 cell(textScrollPane = new JScrollPane(textArea = new JTextArea())).weightBy(1),
                 row(4,
                         glue(),
-                        cell(continueButton = new JButton("Continue anyway")),
-                        cell(exitButton = new JButton("Exit")))
+                        cell(continueButton = new JButton(text("error.message.continue.button"))),
+                        cell(exitButton = new JButton(text("error.message.exit.button"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 

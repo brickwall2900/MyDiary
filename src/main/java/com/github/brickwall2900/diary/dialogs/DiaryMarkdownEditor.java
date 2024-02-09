@@ -16,13 +16,14 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
+import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.SYNTAX_STYLE_MARKDOWN;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryMarkdownEditor extends JDialog {
-    public static final String TITLE = "Editor";
+    public static final String TITLE = text("editor.title");
 
     public TextPane editLabel;
     public RTextScrollPane scrollPane;
@@ -73,11 +74,11 @@ public class DiaryMarkdownEditor extends JDialog {
 
     private void buildContentPane() {
         setContentPane(column(4,
-                cell(editLabel = new TextPane("Markdown Editor: ")),
+                cell(editLabel = new TextPane(text("editor.header"))),
                 cell(scrollPane = new RTextScrollPane(textArea = new RSyntaxTextArea())).weightBy(1),
                 row(4,
                         glue(),
-                        cell(editButton = new JButton("Edit")))
+                        cell(editButton = new JButton(text("editor.editButton"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());
     }
 
