@@ -145,7 +145,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
      * @param uid A unique identifier that serves as the one of the keys.
      * @param uuid Another unique identifier that serves as the one of the keys.
      */
-    private static byte[] encryptStage1(byte[] bytes, byte iterations, long uid, UUID uuid) throws Exception {
+    private static byte[] encryptStage1(byte[] bytes, byte iterations, long uid, UUID uuid) throws IOException, NoSuchAlgorithmException {
         Random random = new Random();
         long seed = -0xF0AA0FF93433EL;
         long twoBytes = (uid >> 32) & 0xFF;
@@ -163,7 +163,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
         return bytes;
     }
 
-    private static byte[] encryptStage2(byte[] bytes, long uid, UUID uuid) throws Exception {
+    private static byte[] encryptStage2(byte[] bytes, long uid, UUID uuid) throws IOException, NoSuchAlgorithmException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(new DataOutputStream(bos))) {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -204,7 +204,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
         return pwd;
     }
 
-    private static byte[] encryptStage3(byte[] bytes, long uid, UUID uuid) throws Exception {
+    private static byte[] encryptStage3(byte[] bytes, long uid, UUID uuid) throws IOException {
         byte[] iv = new byte[16];
         generateBIv(iv);
         char[] password = generatePassword(uid, uuid);
@@ -227,7 +227,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
      * @param uid A unique identifier that serves as the one of the keys.
      * @param uuid Another unique identifier that serves as the one of the keys.
      */
-    private static byte[] decryptStage1(byte[] bytes, byte iterations, long uid, UUID uuid) throws Exception {
+    private static byte[] decryptStage1(byte[] bytes, byte iterations, long uid, UUID uuid) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
             byte[] iv = new byte[16];
             if (bis.read(iv) != 16) throw new IOException(text("error.decrypt.fileMalformed"));
@@ -238,7 +238,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
         }
     }
 
-    private static byte[] decryptStage2(byte[] bytes, byte iterations, long uid, UUID uuid) throws Exception {
+    private static byte[] decryptStage2(byte[] bytes, byte iterations, long uid, UUID uuid) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInputStream ois = new ObjectInputStream(new DataInputStream(bis))) {
             byte[] digestedBytes = (byte[]) ois.readObject();
@@ -250,7 +250,7 @@ public class ThisIsAnInsaneEncryptAlgorithm {
         }
     }
 
-    private static byte[] decryptStage3(byte[] bytes, byte iterations, long uid, UUID uuid) throws Exception {
+    private static byte[] decryptStage3(byte[] bytes, byte iterations, long uid, UUID uuid) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
         for (byte b = 0; b < iterations - 1; b++) {
             bytes = decryptStage1(bytes, (byte) -1, uid, uuid);
         }
@@ -272,20 +272,12 @@ public class ThisIsAnInsaneEncryptAlgorithm {
 
     // PUBLIC APIS
 
-    public static byte[] encrypt(Key key, byte[] data) {
-        try {
-            return encryptStage1(data, key.iterations, key.uid1, key.uid2);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static byte[] encrypt(Key key, byte[] data) throws IOException, NoSuchAlgorithmException {
+        return encryptStage1(data, key.iterations, key.uid1, key.uid2);
     }
 
-    public static byte[] decrypt(Key key, byte[] data) {
-        try {
-            return decryptStage1(data, key.iterations, key.uid1, key.uid2);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static byte[] decrypt(Key key, byte[] data) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
+        return decryptStage1(data, key.iterations, key.uid1, key.uid2);
     }
 
     public record Key(byte iterations, long uid1, UUID uid2) {}

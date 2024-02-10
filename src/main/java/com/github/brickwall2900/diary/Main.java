@@ -22,33 +22,36 @@ public class Main {
     }
 
     public DiaryFrame frame;
+    public DiaryIntroduction introduction;
     public DiaryErrorMessage errorMessage;
 
     public void setup() {
         FlatLightLaf.setup();
         errorMessage = new DiaryErrorMessage();
         frame = new DiaryFrame();
+        introduction = new DiaryIntroduction(frame);
     }
 
     public void start() {
-        if (DiaryStore.hasDiaryBeenCreated()) {
-            DiarySetup.askForKey();
-            DiaryStore.load(DiaryStore.DIARY_FILE);
-            DiarySetup.applyConfiguration(frame, DiaryStore.CONFIGURATION);
-            frame.setVisible(true);
-        } else {
-            if (askCreate()) {
-                DiarySetup.setup();
-                DiaryStore.createDiary();
-                DiaryStore.save(DiaryStore.DIARY_FILE);
-                frame.setVisible(true);
-            }
-        }
+        introduction.setVisible(true);
+//        if (DiaryStore.hasDiaryBeenCreated()) {
+//            DiarySetup.askForKey();
+//            DiaryStore.load(DiaryStore.DIARY_FILE);
+//            DiarySetup.applyConfiguration(frame, DiaryStore.CONFIGURATION);
+//            frame.setVisible(true);
+//        } else {
+//            if (askCreate()) {
+//                DiarySetup.setup();
+//                DiaryStore.createDiary();
+//                DiaryStore.save(DiaryStore.DIARY_FILE);
+//                frame.setVisible(true);
+//            }
+//        }
     }
 
-    private boolean askCreate() {
-        return JOptionPane.showConfirmDialog(null,
-                text("password.firstTime", DiaryStore.USERNAME),
-                text("title"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-    }
+//    private boolean askCreate() {
+//        return JOptionPane.showConfirmDialog(null,
+//                text("password.firstTime", DiaryStore.USERNAME),
+//                text("title"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+//    }
 }

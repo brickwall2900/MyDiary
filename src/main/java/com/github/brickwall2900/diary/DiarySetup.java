@@ -26,6 +26,10 @@ public class DiarySetup {
         key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString(uid2));
     }
 
+    public static void destroyKey() {
+        key = null;
+    }
+
     public static void setup() {
         int confirmed;
         do {
@@ -35,10 +39,8 @@ public class DiarySetup {
             confirmed = confirmOptions(iterations, uid1, uid2);
             if (confirmed == YES_OPTION) {
                 key = new ThisIsAnInsaneEncryptAlgorithm.Key(iterations, uid1, ThisIsAnInsaneEncryptAlgorithm.generateUUIDFromString(uid2));
-                eraseData(uid2);
-            } else if (confirmed == CANCEL_OPTION) {
-                System.exit(0);
             }
+            eraseData(uid2);
         } while (confirmed == NO_OPTION);
     }
 
@@ -94,16 +96,16 @@ public class DiarySetup {
         throw new IllegalArgumentException(message);
     }
 
-    public static void applyConfiguration(DiaryFrame lafChange, DiaryStore.DiaryConfiguration configuration) {
+    public static void applyConfiguration(DiaryFrame frame, DiaryStore.DiaryConfiguration configuration) {
         if (configuration.darkMode) {
             FlatDarkLaf.setup();
         } else {
             FlatLightLaf.setup();
        }
         FlatAnimatedLafChange.showSnapshot();
-        lafChange.editor.changeTheme(configuration.darkMode);
-        lafChange.configurationDialog.templateEditor.changeTheme(configuration.darkMode);
-        lafChange.updateUI();
+        frame.editor.changeTheme(configuration.darkMode);
+        frame.configurationDialog.templateEditor.changeTheme(configuration.darkMode);
+        frame.updateUI();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
     }
 }

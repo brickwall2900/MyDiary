@@ -5,6 +5,7 @@ import com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm;
 
 import javax.swing.*;
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,14 +17,13 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.github.brickwall2900.diary.Main.INSTANCE;
+import static com.github.brickwall2900.diary.utils.TranslatableText.friendlyException;
 import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 
 public class DiaryStore {
-    public static final String USERNAME;
-    private static final File HOME;
-    public static final File DIARY_FILE;
+    public static final File HOME;
 
     public static final int FILE_VERSION = 1000;
 
@@ -55,27 +55,32 @@ public class DiaryStore {
     public static Map<DiaryEntry, String> ENTRIES = new HashMap<>();
 
     public static DiaryStore.DiaryEntry currentEntry;
+    public static File currentFile;
 
     public static DiaryConfiguration CONFIGURATION = new DiaryConfiguration();
+
     static {
-        USERNAME = System.getProperty("user.name");
-        HOME = new File(System.getProperty("user.home"));
-        DIARY_FILE = new File(HOME, ".personal1");
+        HOME = new File(System.getProperty("user.home"), ".personal1");
     }
 
     private DiaryStore() {}
 
-    public static boolean hasDiaryBeenCreated() {
-        return DIARY_FILE.exists();
+    public static void destroyStore() {
+        currentEntry = null;
+        ENTRIES.clear();
+        ENTRIES = new HashMap<>();
+        CONFIGURATION = new DiaryConfiguration();
     }
 
-    public static boolean createDiary() {
+    public static boolean createDiary(File file) {
         try {
-            for (int i = 0; i < 10 || DIARY_FILE.createNewFile(); i++);
+            for (int i = 0; i < 10 || file.createNewFile(); i++);
             return true;
         } catch (IOException e) {
-            throw new DiaryException(text("store.error.createFile"), e);
+            JOptionPane.showMessageDialog(null, text("store.error.createFile", friendlyException(e)), text("title"), JOptionPane.ERROR_MESSAGE);
+//            throw new DiaryException(text("store.error.createFile"), e);
         }
+        return false;
     }
 
     public static List<DiaryEntry> getSortedEntryList() {
@@ -96,13 +101,15 @@ public class DiaryStore {
                 if (state.fileVersion == FILE_VERSION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
-                } else if (JOptionPane.showConfirmDialog(null, text("store.warning.incompatibleVersion", FILE_VERSION, state.fileVersion), text("text.title"), YES_NO_OPTION) == YES_OPTION) {
+                } else if (JOptionPane.showConfirmDialog(null, text("store.warning.incompatibleVersion", FILE_VERSION, state.fileVersion), text("title"), YES_NO_OPTION) == YES_OPTION) {
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
                 } else {
                     throw new DiaryException(text("store.error.incompatibleVersion"));
                 }
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
+                SwingUtilities.invokeLater(load::closeLoadDialog);
+                JOptionPane.showMessageDialog(null, text("store.error.load", friendlyException(e)), text("title"), JOptionPane.ERROR_MESSAGE);
                 throw new DiaryException(text("store.error.load"), e);
             }
         }
@@ -130,15 +137,22 @@ public class DiaryStore {
                 ThisIsAnInsaneEncryptAlgorithm.eraseData(enc);
                 ThisIsAnInsaneEncryptAlgorithm.eraseData(raw);
                 SwingUtilities.invokeLater(load::closeLoadDialog);
-            } catch (IOException e) {
-                throw new DiaryException(text("store.error.save"), e);
+            } catch (IOException | RuntimeException | NoSuchAlgorithmException e) {
+                DiaryLoadDialog load = INSTANCE.frame.loadDialog;
+                SwingUtilities.invokeLater(load::closeLoadDialog);
+                JOptionPane.showMessageDialog(null, text("store.error.save", friendlyException(e)), text("title"), JOptionPane.ERROR_MESSAGE);
+//                throw new DiaryException(text("store.error.save"), e);
             }
         }
     }
 
-    public static void saveAndExit(File file) {
-        save(file);
-        System.exit(0);
+    public static void wrapSaveThenCallLater(File file, Runnable runnable) {
+        Thread thread = new Thread(() -> {
+            save(file);
+            if (runnable != null) runnable.run();
+        });
+        thread.setName("Save Thread");
+        thread.start();
     }
 
     public static class DiaryConfiguration implements Serializable {

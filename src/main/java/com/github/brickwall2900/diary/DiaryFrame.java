@@ -23,8 +23,7 @@ import java.util.Objects;
 
 import static com.github.brickwall2900.diary.DiarySetup.applyConfiguration;
 import static com.github.brickwall2900.diary.DiarySetup.askForKey;
-import static com.github.brickwall2900.diary.DiaryStore.currentEntry;
-import static com.github.brickwall2900.diary.DiaryStore.load;
+import static com.github.brickwall2900.diary.DiaryStore.*;
 import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.JFileChooser.APPROVE_OPTION;
@@ -51,6 +50,9 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JSeparator separator2;
             public JMenuItem backupItem;
             public JMenuItem loadFromBackupItem;
+            public JSeparator separator3;
+            public JMenuItem closeItem;
+            public JMenuItem exitItem;
         public JMenu entriesMenu;
             public JMenuItem newEntryItem;
             public JMenuItem editEntryItem;
@@ -146,6 +148,15 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         loadFromBackupItem = new JMenuItem(text("menu.file.loadBackup"));
         loadFromBackupItem.setAccelerator(KeyStroke.getKeyStroke(VK_O, CTRL_DOWN_MASK | SHIFT_DOWN_MASK));
         loadFromBackupItem.addActionListener(this);
+
+        separator3 = new JSeparator();
+
+        closeItem = new JMenuItem(text("menu.file.close"));
+        closeItem.setAccelerator(KeyStroke.getKeyStroke(VK_W, CTRL_DOWN_MASK));
+        closeItem.addActionListener(this);
+
+        exitItem = new JMenuItem(text("menu.file.exit"));
+        exitItem.setAccelerator(KeyStroke.getKeyStroke(VK_F4, ALT_DOWN_MASK));
     }
 
     private void buildAboutMenu() {
@@ -196,6 +207,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         reloadItem.setMnemonic(VK_R);
         backupItem.setMnemonic(VK_B);
         loadFromBackupItem.setMnemonic(VK_L);
+        closeItem.setMnemonic(VK_C);
+        exitItem.setMnemonic(VK_E);
 
         newEntryItem.setMnemonic(VK_N);
         editEntryItem.setMnemonic(VK_E);
@@ -214,6 +227,9 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         fileMenu.add(separator2);
         fileMenu.add(backupItem);
         fileMenu.add(loadFromBackupItem);
+        fileMenu.add(separator3);
+        fileMenu.add(closeItem);
+        fileMenu.add(exitItem);
 
         entriesMenu.add(newEntryItem);
         entriesMenu.add(editEntryItem);
@@ -348,15 +364,13 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
                 } catch (IOException e) {
                     throw new DiaryException(text("error.backup"), e);
                 }
-                Thread t = new Thread(() -> DiaryStore.save(f));
-                t.setName("Save Thread");
-                t.start();
+                wrapSaveThenCallLater(f, null);
             }
         }
     }
 
     public void reload(File f) {
-        String message = DiaryStore.DIARY_FILE.equals(f) ? text("dialog.reload") : text("dialog.reloadBackup");
+        String message = currentFile.equals(f) ? text("dialog.reload") : text("dialog.reloadBackup");
         if (showConfirmDialog(this, message, TITLE, YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION) {
             try {
                 askForKey();
@@ -400,9 +414,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         } else if (preferencesMenu.equals(source)) {
             configurationDialog.editOptions();
         } else if (saveItem.equals(source)) {
-            Thread t = new Thread(() -> DiaryStore.save(DiaryStore.DIARY_FILE));
-            t.setName("Save Thread");
-            t.start();
+            wrapSaveThenCallLater(currentFile, null);
         } else if (removeEntryItem.equals(source)) {
             removeCurrentEntry();
         } else if (backupItem.equals(source)) {
@@ -410,10 +422,23 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         } else if (loadFromBackupItem.equals(source)) {
             loadFromBackup();
         } else if (reloadItem.equals(source)) {
-            reload(DiaryStore.DIARY_FILE);
+            reload(currentFile);
         } else if (aboutItem.equals(source)) {
             aboutDialog.showAboutScreen();
+        } else if (closeItem.equals(source)) { // exitItem should take care of itself with Alt+F4
+            dispose();
+            wrapSaveThenCallLater(currentFile, this::onClose);
         }
+    }
+
+    private void onClose() {
+        DiaryIntroduction introduction = Main.INSTANCE.introduction;
+        DiarySetup.destroyKey();
+        currentFile = null;
+        DiaryStore.destroyStore();
+        DiarySetup.applyConfiguration(this, CONFIGURATION);
+        loadToHelpPage();
+        introduction.setVisible(true);
     }
 
     @Override
@@ -421,9 +446,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     @Override
     public void windowClosing(WindowEvent e) {
-        Thread t = new Thread(() -> DiaryStore.saveAndExit(DiaryStore.DIARY_FILE));
-        t.setName("Close Save Thread");
-        t.start();
+        wrapSaveThenCallLater(currentFile, this::onClose);
     }
 
     @Override

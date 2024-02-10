@@ -57,7 +57,7 @@ public class DiaryAboutDialog extends JDialog {
 
     public void showAboutScreen() {
         aboutArea.setContentType("text/html");
-        aboutArea.setText(text("about.content", DiaryStore.FILE_VERSION, DiaryStore.USERNAME));
+        aboutArea.setText(text("about.content", DiaryStore.FILE_VERSION, null));
         setVisible(true);
     }
 }
