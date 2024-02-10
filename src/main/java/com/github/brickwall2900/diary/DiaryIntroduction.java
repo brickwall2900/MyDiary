@@ -66,10 +66,8 @@ public class DiaryIntroduction extends JFrame {
     public void newFile() {
         DefaultListModel<String> model = (DefaultListModel<String>) fileList.getModel();
         String input = JOptionPane.showInputDialog(this, text("introduction.chooseName"), TITLE, JOptionPane.QUESTION_MESSAGE);
-        if (input != null && !input.isBlank() && !DiaryStore.isFileNameIllegal(input)) {
+        if (input != null && !input.isBlank()) {
             model.addElement(input);
-        } else if (input != null && !input.isBlank() && DiaryStore.isFileNameIllegal(input)) {
-            throwIllegalArgument(text("store.error.illegalName", input));
         } else {
             throwIllegalArgument(text("password.error.emptyInput"));
         }

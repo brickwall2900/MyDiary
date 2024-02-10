@@ -25,6 +25,7 @@ public class DiaryJumpToEntryDialog extends JDialog {
     public JList<DiaryStore.DiaryEntry> entries;
 
     public JCheckBox reverseOrderCheckBox;
+    public JCheckBox showHiddenCheckBox;
 
     public JButton jumpButton;
     public JButton cancelButton;
@@ -41,7 +42,8 @@ public class DiaryJumpToEntryDialog extends JDialog {
         cancelButton.addActionListener(e -> dispose());
 
         entries.setModel(listModel = new DefaultListModel<>());
-        reverseOrderCheckBox.addActionListener(e -> updateFields(reverseOrderCheckBox.isSelected()));
+        reverseOrderCheckBox.addActionListener(e -> updateFields());
+        showHiddenCheckBox.addActionListener(e -> updateFields());
 
         entries.addKeyListener(new KeyAdapter() {
             @Override public void keyPressed(KeyEvent e) {
@@ -64,7 +66,8 @@ public class DiaryJumpToEntryDialog extends JDialog {
                 cell(nameLabel = new TextPane(text("jump.header"))),
                 cell(entries = new JList<>()).weightBy(1),
                 row(4,
-                        cell(reverseOrderCheckBox = new JCheckBox(text("jump.newestFirst"))),
+                        cell(reverseOrderCheckBox = new JCheckBox(text("jump.newestFirst"), true)),
+                        cell(showHiddenCheckBox = new JCheckBox(text("jump.showHidden"))),
                         glue(),
                         cell(jumpButton = new JButton(text("jump.jumpButton"))),
                         cell(cancelButton = new JButton(text("dialog.cancel"))))
@@ -76,17 +79,19 @@ public class DiaryJumpToEntryDialog extends JDialog {
         dispose();
     }
 
-    private void updateFields(boolean oldestFirst) {
+    private void updateFields() {
+        boolean oldestFirst = reverseOrderCheckBox.isSelected();
+        boolean showHidden = showHiddenCheckBox.isSelected();
         listModel.removeAllElements();
-        List<DiaryStore.DiaryEntry> entryList = getSortedEntryList();
-        if (!oldestFirst) {
+        List<DiaryStore.DiaryEntry> entryList = getSortedEntryList(showHidden);
+        if (oldestFirst) {
             Collections.reverse(entryList);
         }
         listModel.addAll(entryList);
     }
 
     public DiaryStore.DiaryEntry askJumpToEntry(DiaryStore.DiaryEntry currentEntry) {
-        updateFields(reverseOrderCheckBox.isSelected());
+        updateFields();
         if (currentEntry != null) {
             entries.setSelectedValue(currentEntry, true);
         }

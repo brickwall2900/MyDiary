@@ -34,25 +34,28 @@ import static javax.swing.JOptionPane.YES_OPTION;
 public class DiaryStore {
     public static final Path HOME;
 
-    public static final int FILE_VERSION = 1002;
+    public static final int FILE_VERSION = 1003;
 
     public static class DiaryEntry implements Comparable<DiaryEntry>, Serializable {
         public String name;
         public LocalDate date;
         public LocalTime time;
+        public boolean hidden;
 
-        public DiaryEntry(String name, LocalDate date, LocalTime time) {
+        public DiaryEntry(String name, LocalDate date, LocalTime time, boolean hidden) {
             this.name = name;
             this.date = date;
             this.time = time;
+            this.hidden = hidden;
         }
 
         @Override
         public String toString() {
             LocalDateTime dateTime = LocalDateTime.of(date, time);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(CONFIGURATION.timeFormat);
-            return text("entry.info", name, formatter.format(dateTime));
+            return text(hidden ? "entry.info.hidden" : "entry.info", name, formatter.format(dateTime));
         }
+
         @Override
         public int compareTo(DiaryEntry o) {
             LocalDateTime dateTime = LocalDateTime.of(date, time);
@@ -61,7 +64,7 @@ public class DiaryStore {
         }
 
     }
-    public static Map<DiaryEntry, String> ENTRIES = new HashMap<>(), HIDDEN_ENTRIES = new HashMap<>();
+    public static Map<DiaryEntry, String> ENTRIES = new HashMap<>();
 
     public static DiaryStore.DiaryEntry currentEntry;
     public static Path currentFile;
@@ -85,9 +88,7 @@ public class DiaryStore {
         currentEntry = null;
         currentName = null;
         ENTRIES.clear();
-        HIDDEN_ENTRIES.clear();
         ENTRIES = new HashMap<>();
-        HIDDEN_ENTRIES = new HashMap<>();
         CONFIGURATION = new DiaryConfiguration();
     }
 
@@ -120,8 +121,11 @@ public class DiaryStore {
 
     }
 
-    public static List<DiaryEntry> getSortedEntryList() {
-        return new java.util.ArrayList<>(ENTRIES.keySet().stream().sorted().toList());
+    public static List<DiaryEntry> getSortedEntryList(boolean showHidden) {
+        return new java.util.ArrayList<>(ENTRIES.keySet().stream().filter(e -> {
+            if (!showHidden) return !e.hidden;
+            else return true;
+        }).sorted().toList());
     }
 
     protected static void load(Path path) {
@@ -139,19 +143,19 @@ public class DiaryStore {
 
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(ThisIsAnInsaneEncryptAlgorithm.decrypt(key, fis.readAllBytes()));
                      GZIPInputStream gis = new GZIPInputStream(bis);
-                     ObjectInputStream ois = new ObjectInputStream(gis);) {
+                     ObjectInputStream ois = new ObjectInputStream(gis)) {
                     int fileVersion = ois.readInt();
                     boolean compatible = fileVersion == FILE_VERSION;
                     if (!compatible) {
                         compatible = JOptionPane.showConfirmDialog(null, text("store.warning.incompatibleVersion", FILE_VERSION, fileVersion), text("title"), YES_NO_OPTION) == YES_OPTION;
                     }
                     if (!compatible) {
+                        SwingUtilities.invokeLater(load::closeLoadDialog);
                         throw new DiaryException(text("store.error.incompatibleVersion"));
                     }
                     DiaryState state = (DiaryState) ois.readObject();
                     ENTRIES = state.entries;
                     CONFIGURATION = state.configuration;
-                    HIDDEN_ENTRIES = state.hiddenEntries;
                     currentName = nameRead;
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
@@ -195,7 +199,7 @@ public class DiaryStore {
                 DiaryLoadDialog load = INSTANCE.frame.loadDialog;
                 SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.save"), 25));
                 oos.writeInt(FILE_VERSION);
-                oos.writeObject(new DiaryState(currentName, CONFIGURATION, ENTRIES, HIDDEN_ENTRIES));
+                oos.writeObject(new DiaryState(currentName, CONFIGURATION, ENTRIES));
                 oos.flush();
                 SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.compress"), 50));
                 gos.flush();
@@ -280,5 +284,5 @@ public class DiaryStore {
         public DiaryConfiguration() {
         }
     }
-    public record DiaryState(String name, DiaryConfiguration configuration, Map<DiaryEntry, String> entries, Map<DiaryEntry, String> hiddenEntries) implements Serializable {}
+    public record DiaryState(String name, DiaryConfiguration configuration, Map<DiaryEntry, String> entries) implements Serializable {}
 }

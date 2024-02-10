@@ -31,6 +31,8 @@ public class DiaryNewEntryDialog extends JDialog {
     public TextPane timeLabel;
     public TimePicker timePicker;
 
+    public JCheckBox hiddenCheckBox;
+
     public JButton createButton;
     public JButton cancelButton;
 
@@ -76,6 +78,8 @@ public class DiaryNewEntryDialog extends JDialog {
                 row(6,
                         cell(timeLabel = new TextPane(text("newEntry.time.label"))),
                         cell(timePicker = new TimePicker()).weightBy(1)),
+                row(6,
+                        cell(hiddenCheckBox = new JCheckBox(text("newEntry.hidden.label")))),
                 glue(),
                 row(4,
                         glue(),
@@ -88,6 +92,7 @@ public class DiaryNewEntryDialog extends JDialog {
         nameField.setText("");
         datePicker.setDate(LocalDate.now());
         timePicker.setTime(LocalTime.now());
+        hiddenCheckBox.setSelected(false);
     }
 
     private void create() {
@@ -103,7 +108,8 @@ public class DiaryNewEntryDialog extends JDialog {
             String name = nameField.getText();
             LocalDate date = datePicker.getDate();
             LocalTime time = timePicker.getTime();
-            entry = new DiaryStore.DiaryEntry(name, date, time);
+            boolean hidden = hiddenCheckBox.isSelected();
+            entry = new DiaryStore.DiaryEntry(name, date, time, hidden);
         }
         canceled = true;
         return entry;

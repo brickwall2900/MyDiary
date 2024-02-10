@@ -58,6 +58,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JMenuItem newEntryItem;
             public JMenuItem editEntryItem;
             public JMenuItem jumpToEntryItem;
+            public JCheckBoxMenuItem hiddenEntryItem;
             public JMenuItem removeEntryItem;
             public JSeparator separator1;
             public JMenuItem nextEntryItem, prevEntryItem;
@@ -111,6 +112,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         } catch (Exception e) {
             throw new DiaryException(text("error.startPage"), e);
         }
+        hiddenEntryItem.setSelected(false);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Menu Bar Instantiation">
@@ -182,6 +184,10 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         jumpToEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_F, CTRL_DOWN_MASK));
         jumpToEntryItem.addActionListener(this);
 
+        hiddenEntryItem = new JCheckBoxMenuItem(text("menu.entries.hidden"));
+        hiddenEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_H, CTRL_DOWN_MASK));
+        hiddenEntryItem.addActionListener(this);
+
         removeEntryItem = new JMenuItem(text("menu.entries.remove"));
         removeEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_DELETE, 0));
         removeEntryItem.addActionListener(this);
@@ -214,6 +220,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         newEntryItem.setMnemonic(VK_N);
         editEntryItem.setMnemonic(VK_E);
         jumpToEntryItem.setMnemonic(VK_J);
+        hiddenEntryItem.setMnemonic(VK_H);
         prevEntryItem.setMnemonic(VK_P);
         nextEntryItem.setMnemonic(VK_N);
 
@@ -235,6 +242,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         entriesMenu.add(newEntryItem);
         entriesMenu.add(editEntryItem);
         entriesMenu.add(jumpToEntryItem);
+        entriesMenu.add(hiddenEntryItem);
         entriesMenu.add(removeEntryItem);
         entriesMenu.add(separator1);
         entriesMenu.add(prevEntryItem);
@@ -286,6 +294,17 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         }
     }
 
+    public void toggleCurrentEntryVisibility() {
+        if (currentEntry != null) {
+            boolean hidden = currentEntry.hidden;
+            hidden = !hidden;
+            currentEntry.hidden = hidden;
+            hiddenEntryItem.setSelected(hidden);
+        } else {
+            hiddenEntryItem.setSelected(false);
+        }
+    }
+
     public void updatePanelWithEntry(DiaryStore.DiaryEntry entry) {
         if (entry != null) {
             String content = DiaryStore.ENTRIES.get(entry);
@@ -294,12 +313,14 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             } catch (Exception e) {
                 throw new DiaryException(text("error.updateError"), e);
             }
+            hiddenEntryItem.setSelected(entry.hidden);
         }
     }
 
     public void updatePanelDirect(InputStream inputStream) {
         try {
             htmlPanel.setDocument(inputStream, null);
+            hiddenEntryItem.setSelected(currentEntry != null && currentEntry.hidden);
         } catch (Exception e) {
             throw new DiaryException(text("error.updateDirectError"), e);
         }
@@ -324,7 +345,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     public DiaryStore.DiaryEntry getOffsetEntry(int offset) {
         if (currentEntry != null) {
-            List<DiaryStore.DiaryEntry> entryList = DiaryStore.getSortedEntryList();
+            List<DiaryStore.DiaryEntry> entryList = DiaryStore.getSortedEntryList(false);
             int idx = entryList.indexOf(currentEntry);
             idx += offset;
             if (0 <= idx && idx <= entryList.size() - 1) {
@@ -429,6 +450,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         } else if (closeItem.equals(source)) { // exitItem should take care of itself with Alt+F4
             dispose();
             wrapSaveThenCallLater(currentFile, this::onClose);
+        } else if (hiddenEntryItem.equals(source)) {
+            toggleCurrentEntryVisibility();
         }
     }
 
@@ -436,6 +459,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         DiaryIntroduction introduction = Main.INSTANCE.introduction;
         DiarySetup.destroyKey();
         currentFile = null;
+        currentName = null;
         DiaryStore.destroyStore();
         DiarySetup.applyConfiguration(this, CONFIGURATION);
         loadToHelpPage();
