@@ -9,16 +9,16 @@ import javax.swing.event.ListSelectionEvent;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.github.brickwall2900.diary.DiaryFrame.IMAGE_ICON;
 import static com.github.brickwall2900.diary.utils.TranslatableText.intro;
 import static com.github.brickwall2900.diary.utils.TranslatableText.text;
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
-import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.*;
 import static org.httprpc.sierra.UIBuilder.*;
 
 public class DiaryIntroduction extends JFrame {
@@ -38,6 +38,8 @@ public class DiaryIntroduction extends JFrame {
         buildContentPane();
         fileList.setModel(new DefaultListModel<>());
 
+        openInExplorerButton.setEnabled(false);
+        openInExplorerButton.setToolTipText(text("introduction.openInExplorer.disabled"));
         openButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
@@ -45,6 +47,7 @@ public class DiaryIntroduction extends JFrame {
         openButton.addActionListener(this::onOpen);
         fileList.addListSelectionListener(this::onFileSelect);
         openInExplorerButton.addActionListener(this::onOpenInExplorer);
+        deleteButton.addActionListener(this::onDelete);
 
         populateFileList();
 
@@ -63,36 +66,38 @@ public class DiaryIntroduction extends JFrame {
     public void newFile() {
         DefaultListModel<String> model = (DefaultListModel<String>) fileList.getModel();
         String input = JOptionPane.showInputDialog(this, text("introduction.chooseName"), TITLE, JOptionPane.QUESTION_MESSAGE);
-        if (input != null && !input.isBlank()) {
+        if (input != null && !input.isBlank() && !DiaryStore.isFileNameIllegal(input)) {
             model.addElement(input);
+        } else if (input != null && !input.isBlank() && DiaryStore.isFileNameIllegal(input)) {
+            throwIllegalArgument(text("store.error.illegalName", input));
         } else {
             throwIllegalArgument(text("password.error.emptyInput"));
         }
     }
 
-    public static void openFileInExplorer(File file) {
-        Desktop.getDesktop().browseFileDirectory(file);
+    public static void openFileInExplorer(Path path) {
+        Desktop.getDesktop().browseFileDirectory(path.toFile()); // HUHHH
     }
 
     private void populateFileList() {
-        String[] names = DiaryStore.HOME.list();
-        if (names != null) {
-            DefaultListModel<String> model = (DefaultListModel<String>) fileList.getModel();
-            model.addAll(List.of(names));
-        }
+        String[] names = DiaryStore.listSaves();
+        DefaultListModel<String> model = (DefaultListModel<String>) fileList.getModel();
+        model.addAll(List.of(names));
     }
 
     private void onOpen(ActionEvent e) {
         String selected = fileList.getSelectedValue();
         if (selected != null) {
-            File translated = new File(DiaryStore.HOME, selected);
-            if (translated.exists()) {
+            Path translated = DiaryStore.HOME.resolve(DiaryStore.getFileByName(selected));
+            if (Files.exists(translated)) {
                 DiaryStore.currentFile = translated;
+                DiaryStore.currentName = selected;
                 DiarySetup.askForKey();
                 DiaryStore.load(translated);
                 DiarySetup.applyConfiguration(frame, DiaryStore.CONFIGURATION);
             } else {
                 DiarySetup.setup();
+                DiaryStore.currentName = selected;
                 DiaryStore.createDiary(translated);
                 DiaryStore.save(translated);
                 DiaryStore.currentFile = translated;
@@ -105,8 +110,8 @@ public class DiaryIntroduction extends JFrame {
     private void onOpenInExplorer(ActionEvent e) {
         String selected = fileList.getSelectedValue();
         if (selected != null) {
-            File translated = new File(DiaryStore.HOME, selected);
-            if (translated.exists()) {
+            Path translated = DiaryStore.HOME.resolve(DiaryStore.getFileByName(selected));
+            if (Files.exists(translated)) {
                 openFileInExplorer(translated);
             } else {
                 openFileInExplorer(DiaryStore.HOME);
@@ -121,7 +126,24 @@ public class DiaryIntroduction extends JFrame {
         boolean shouldBeEnabled = selected != null;
         openButton.setEnabled(shouldBeEnabled);
         deleteButton.setEnabled(shouldBeEnabled);
+    }
 
+    private void onDelete(ActionEvent e) {
+        String selected = fileList.getSelectedValue();
+        if (selected != null) {
+            String[] options = new String[]{text("dialog.yes"), text("dialog.no")};
+            boolean confirmDelete = showOptionDialog(this, text("introduction.delete.confirm", selected), TITLE, DEFAULT_OPTION, WARNING_MESSAGE, null, options, options[1]) == 0;
+            if (confirmDelete) {
+                DefaultListModel<String> model = (DefaultListModel<String>) fileList.getModel();
+                model.removeElement(selected);
+                Path translated = DiaryStore.HOME.resolve(DiaryStore.getFileByName(selected));
+                if (Files.exists(translated)) {
+                    try {
+                        Files.delete(translated);
+                    } catch (IOException ex) { ex.printStackTrace(); }
+                }
+            }
+        }
     }
 
     public String randomIntro() {

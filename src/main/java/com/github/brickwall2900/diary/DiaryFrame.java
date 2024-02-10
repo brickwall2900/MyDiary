@@ -12,10 +12,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -357,10 +358,10 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     public void backup() {
         int val = fileChooser.showSaveDialog(this);
         if (val == APPROVE_OPTION) {
-            File f = fileChooser.getSelectedFile();
+            Path f = fileChooser.getSelectedFile().toPath();
             if (showConfirmDialog(this, text("dialog.backup", f), TITLE, YES_NO_OPTION, QUESTION_MESSAGE) == YES_OPTION) {
                 try {
-                    for (int i = 0; i < 10 || f.createNewFile(); i++) ;
+                    Files.createFile(f);
                 } catch (IOException e) {
                     throw new DiaryException(text("error.backup"), e);
                 }
@@ -369,7 +370,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         }
     }
 
-    public void reload(File f) {
+    public void reload(Path f) {
         String message = currentFile.equals(f) ? text("dialog.reload") : text("dialog.reloadBackup");
         if (showConfirmDialog(this, message, TITLE, YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION) {
             try {
@@ -393,7 +394,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     public void loadFromBackup() {
         int val = fileChooser.showOpenDialog(this);
         if (val == APPROVE_OPTION) {
-            File f = fileChooser.getSelectedFile();
+            Path f = fileChooser.getSelectedFile().toPath();
             reload(f);
         }
     }
