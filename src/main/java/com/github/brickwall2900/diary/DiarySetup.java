@@ -107,5 +107,6 @@ public class DiarySetup {
         frame.configurationDialog.templateEditor.changeTheme(configuration.darkMode);
         frame.updateUI();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        DiaryStore.setupAutosave(configuration);
     }
 }

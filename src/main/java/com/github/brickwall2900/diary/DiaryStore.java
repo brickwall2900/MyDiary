@@ -4,6 +4,7 @@ import com.github.brickwall2900.diary.dialogs.DiaryLoadDialog;
 import com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,7 +35,7 @@ import static javax.swing.JOptionPane.YES_OPTION;
 public class DiaryStore {
     public static final Path HOME;
 
-    public static final int FILE_VERSION = 1003;
+    public static final int FILE_VERSION = 1004;
 
     public static class DiaryEntry implements Comparable<DiaryEntry>, Serializable {
         public String name;
@@ -71,6 +72,8 @@ public class DiaryStore {
 
     public static String currentName;
 
+    public static Timer autoSaveTimer;
+
     public static DiaryConfiguration CONFIGURATION = new DiaryConfiguration();
 
     static {
@@ -90,6 +93,9 @@ public class DiaryStore {
         ENTRIES.clear();
         ENTRIES = new HashMap<>();
         CONFIGURATION = new DiaryConfiguration();
+        if (autoSaveTimer != null) {
+            autoSaveTimer.stop();
+        }
     }
 
     public static boolean isFileNameIllegal(String fileName) {
@@ -190,6 +196,10 @@ public class DiaryStore {
     }
 
     protected static void save(Path path) {
+        save(path, true);
+    }
+
+    protected static void save(Path path, boolean openDialog) {
         ThisIsAnInsaneEncryptAlgorithm.Key key = DiarySetup.key;
         if (key != null) {
             try (BufferedOutputStream fos = new BufferedOutputStream(Files.newOutputStream(path));
@@ -197,16 +207,16 @@ public class DiaryStore {
                  GZIPOutputStream gos = new GZIPOutputStream(bos, true);
                  ObjectOutputStream oos = new ObjectOutputStream(gos)) {
                 DiaryLoadDialog load = INSTANCE.frame.loadDialog;
-                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.save"), 25));
+                if (openDialog) SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.save"), 25));
                 oos.writeInt(FILE_VERSION);
                 oos.writeObject(new DiaryState(currentName, CONFIGURATION, ENTRIES));
                 oos.flush();
-                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.compress"), 50));
+                if (openDialog) SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.compress"), 50));
                 gos.flush();
                 byte[] raw = bos.toByteArray();
-                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.encrypt"), 75));
+                if (openDialog) SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.encrypt"), 75));
                 byte[] enc = ThisIsAnInsaneEncryptAlgorithm.encrypt(key, raw);
-                SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.write"), 100));
+                if (openDialog) SwingUtilities.invokeLater(() -> load.openLoadDialog(text("store.save.write"), 100));
                 fos.write(currentName.getBytes()); fos.write(0);
                 fos.write(enc);
                 ThisIsAnInsaneEncryptAlgorithm.eraseData(enc);
@@ -222,8 +232,12 @@ public class DiaryStore {
     }
 
     public static void wrapSaveThenCallLater(Path path, Runnable runnable) {
+        wrapSaveThenCallLater(path, true, runnable);
+    }
+
+    public static void wrapSaveThenCallLater(Path path, boolean openDialog, Runnable runnable) {
         Thread thread = new Thread(() -> {
-            save(path);
+            save(path, openDialog);
             if (runnable != null) runnable.run();
         });
         thread.setName("Save Thread");
@@ -263,6 +277,23 @@ public class DiaryStore {
         return saves;
     }
 
+    public static void setupAutosave(DiaryConfiguration configuration) {
+        if (autoSaveTimer != null) {
+            autoSaveTimer.stop();
+        }
+        if (currentFile != null) {
+            autoSaveTimer = new Timer(configuration.autosaveIntervalMinutes * 1000 * 60, DiaryStore::onAutosave);
+            autoSaveTimer.setRepeats(true);
+            autoSaveTimer.start();
+        }
+    }
+
+    public static void onAutosave(ActionEvent e) {
+        if (currentFile != null) {
+            wrapSaveThenCallLater(currentFile, false, null);
+        }
+    }
+
     public static class DiaryConfiguration implements Serializable {
 
         public boolean darkMode = false;
@@ -274,11 +305,13 @@ public class DiaryStore {
             
             ...
             """;
+        public int autosaveIntervalMinutes = 5;
 
-        public DiaryConfiguration(boolean darkMode, String timeFormat, String template, String name) {
+        public DiaryConfiguration(boolean darkMode, String timeFormat, String template, int autosaveIntervalMinutes) {
             this.darkMode = darkMode;
             this.timeFormat = timeFormat;
             this.template = template;
+            this.autosaveIntervalMinutes = autosaveIntervalMinutes;
         }
 
         public DiaryConfiguration() {

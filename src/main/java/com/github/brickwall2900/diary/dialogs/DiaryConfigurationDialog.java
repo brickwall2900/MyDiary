@@ -31,6 +31,10 @@ public class DiaryConfigurationDialog extends JDialog {
     public TextPane templateEditLabel;
     public JButton templateEditButton;
 
+    public TextPane autoSaveIntervalLabel;
+    public JTextField autoSaveIntervalField;
+    public TextPane autoSaveIntervalUnit;
+
     public JButton okButton;
     public JButton cancelButton;
 
@@ -60,6 +64,7 @@ public class DiaryConfigurationDialog extends JDialog {
         darkModeCheckBox.setToolTipText(text("config.darkMode.tooltip"));
         timeFormattingField.setToolTipText(text("config.timeFormat.tooltip"));
         templateEditButton.setToolTipText(text("config.template.tooltip"));
+        autoSaveIntervalField.setToolTipText(text("config.autoSaveInterval.tooltip"));
 
         setIconImage(DiaryFrame.IMAGE_ICON);
         setModal(true);
@@ -82,6 +87,10 @@ public class DiaryConfigurationDialog extends JDialog {
                 row(6,
                         cell(templateEditLabel = new TextPane(text("config.template.label"))),
                         cell(templateEditButton = new JButton(text("config.template.edit")))),
+                row(6,
+                        cell(autoSaveIntervalLabel = new TextPane(text("config.autoSaveInterval.label"))),
+                        cell(autoSaveIntervalField = new JTextField()).weightBy(1),
+                        cell(autoSaveIntervalUnit = new TextPane(text("config.autoSaveInterval.unit")))),
                 glue(),
                 row(4,
                         glue(),
@@ -95,6 +104,7 @@ public class DiaryConfigurationDialog extends JDialog {
         darkModeCheckBox.setSelected(configuration.darkMode);
         timeFormattingField.setText(configuration.timeFormat);
         templateEditor.textArea.setText(configuration.template);
+        autoSaveIntervalField.setText(String.valueOf(configuration.autosaveIntervalMinutes));
     }
 
     private void apply() {
@@ -110,11 +120,17 @@ public class DiaryConfigurationDialog extends JDialog {
         updateFields();
         setVisible(true);
         if (!canceled) {
-            DiaryStore.DiaryConfiguration configuration = DiaryStore.CONFIGURATION;
-            configuration.darkMode = darkModeCheckBox.isSelected();
-            configuration.timeFormat = timeFormattingField.getText();
-            configuration.template = templateEditor.textArea.getText();
-            DiarySetup.applyConfiguration(parent, configuration);
+            try {
+                DiaryStore.DiaryConfiguration configuration = DiaryStore.CONFIGURATION;
+                configuration.darkMode = darkModeCheckBox.isSelected();
+                configuration.timeFormat = timeFormattingField.getText();
+                configuration.template = templateEditor.textArea.getText();
+                configuration.autosaveIntervalMinutes = Integer.parseInt(autoSaveIntervalField.getText());
+
+                DiarySetup.applyConfiguration(parent, configuration);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, text("config.error.numberFormat", e.getMessage()), TITLE, JOptionPane.ERROR_MESSAGE);
+            }
         }
         canceled = true;
     }
