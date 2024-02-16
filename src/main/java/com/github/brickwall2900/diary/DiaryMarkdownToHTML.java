@@ -7,6 +7,8 @@ import org.commonmark.renderer.html.HtmlRenderer;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +27,20 @@ public class DiaryMarkdownToHTML {
 
     protected static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
 
+    private static final String TEMPLATE, LIGHT_CSS, DARK_CSS;
+
+    static {
+        try (InputStream template = DiaryMarkdownToHTML.class.getResourceAsStream("/html/template.xhtml");
+             InputStream lightCSS = DiaryMarkdownToHTML.class.getResourceAsStream("/html/light.css");
+             InputStream darkCSS = DiaryMarkdownToHTML.class.getResourceAsStream("/html/dark.css")) {
+            TEMPLATE = new String(template.readAllBytes());
+            LIGHT_CSS = new String(lightCSS.readAllBytes());
+            DARK_CSS = new String(darkCSS.readAllBytes());
+        } catch (IOException e) {
+            throw new DiaryException("HTML Template not found!", e);
+        }
+    }
+
 
     public static String getHTMLFromMarkdown(String md) {
         int givenHash = md.hashCode();
@@ -34,34 +50,32 @@ public class DiaryMarkdownToHTML {
             record.time = System.currentTimeMillis();
             toReturn = record.content;
         } else {
-            DiaryEntryLoader entryLoader = new DiaryEntryLoader(md);
-            entryLoader.addPropertyChangeListener(e -> {
-                DiaryFrame frame = Main.INSTANCE.frame;
-                if (frame != null) {
-                    DiaryLoadDialog load = frame.loadDialog; // ???
-                    switch (e.getPropertyName()) {
-                        case "progress" -> load.setProgress((Integer) e.getNewValue());
-                        case "name" -> load.setTaskName((String) e.getNewValue());
-                    }
-                }
-            });
+            DiaryEntryLoader entryLoader = getDiaryEntryLoader(md);
             entryLoader.execute();
-            toReturn = text("html.loader.message");
+            toReturn = wrapHTMLIntoActualDocument(text("html.loader.message"));
         }
-        MD_TO_HTML_CACHE.entrySet().removeIf(entry -> (System.currentTimeMillis() - entry.getValue().time) >= entry.getValue().content.length() * 25L);
+        MD_TO_HTML_CACHE.entrySet().removeIf(entry -> (System.currentTimeMillis() - entry.getValue().time) >= entry.getValue().content.length() * 60L);
         return toReturn;
     }
 
+    private static DiaryEntryLoader getDiaryEntryLoader(String md) {
+        DiaryEntryLoader entryLoader = new DiaryEntryLoader(md);
+        entryLoader.addPropertyChangeListener(e -> {
+            DiaryFrame frame = Main.INSTANCE.frame;
+            if (frame != null) {
+                DiaryLoadDialog load = frame.loadDialog; // ???
+                switch (e.getPropertyName()) {
+                    case "progress" -> load.setProgress((Integer) e.getNewValue());
+                    case "name" -> load.setTaskName((String) e.getNewValue());
+                }
+            }
+        });
+        return entryLoader;
+    }
+
     public static String wrapHTMLIntoActualDocument(String html) {
-        return """
-                <html>
-                	<body>
-                """
-                + html +
-                """
-                	</body>
-                </html>
-                """;
+        String r =  TEMPLATE.replace("/* stylesheet! */", DiaryStore.CONFIGURATION.darkMode ? DARK_CSS : LIGHT_CSS).replace("<!-- content! -->", html);
+        return r;
     }
 
     public static final String DIARY_HELP = """

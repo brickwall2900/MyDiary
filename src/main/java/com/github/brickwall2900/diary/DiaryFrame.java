@@ -83,6 +83,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         buildMenuBar();
 
         htmlPanel = new XHTMLPanel();
+        htmlPanel.getSharedContext().getTextRenderer().setSmoothingThreshold(0);
         loadToHelpPage();
         scrollPane = new FSScrollPane(htmlPanel);
         getContentPane().add(scrollPane);
@@ -314,6 +315,14 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
                 throw new DiaryException(text("error.updateError"), e);
             }
             hiddenEntryItem.setSelected(entry.hidden);
+        }
+    }
+
+    public void updatePanelWithCurrentEntry() {
+        if (currentEntry != null) {
+            updatePanelWithEntry(currentEntry);
+        } else {
+            loadToHelpPage();
         }
     }
 
