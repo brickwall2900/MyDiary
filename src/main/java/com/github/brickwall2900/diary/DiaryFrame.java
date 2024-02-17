@@ -6,6 +6,10 @@ import org.xhtmlrenderer.simple.XHTMLPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,7 +58,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JMenuItem loadFromBackupItem;
             public JSeparator separator3;
             public JMenuItem closeItem;
-            public JMenuItem exitItem;
         public JMenu entriesMenu;
             public JMenuItem newEntryItem;
             public JMenuItem editEntryItem;
@@ -66,8 +70,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JMenuItem preferencesMenu;
             public JMenuItem aboutItem;
 
-    public FSScrollPane scrollPane;
-        public XHTMLPanel htmlPanel;
+    public JScrollPane scrollPane;
+        public JTextPane htmlPanel;
 
     public DiaryMarkdownEditor editor;
     public DiaryNewEntryDialog newEntryDialog;
@@ -82,10 +86,11 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
     public DiaryFrame() {
         buildMenuBar();
 
-        htmlPanel = new XHTMLPanel();
-        htmlPanel.getSharedContext().getTextRenderer().setSmoothingThreshold(0);
+        htmlPanel = new JTextPane();
+        htmlPanel.setEditorKit(new HTMLEditorKit());
+        htmlPanel.setEditable(false);
+        scrollPane = new JScrollPane(htmlPanel);
         loadToHelpPage();
-        scrollPane = new FSScrollPane(htmlPanel);
         getContentPane().add(scrollPane);
 
         editor = new DiaryMarkdownEditor(this);
@@ -107,12 +112,26 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         setLocationRelativeTo(null);
     }
 
+    public void clearHTMLPanelContent() {
+        htmlPanel.setDocument(htmlPanel.getEditorKit().createDefaultDocument());
+    }
+
+    public void loadHTMLContent(InputStream is) {
+        clearHTMLPanelContent();
+        try {
+            htmlPanel.getEditorKit().read(is, htmlPanel.getStyledDocument(), 0);
+        } catch (IOException | BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void loadToHelpPage() {
         try {
-            htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.help")).getBytes(Charset.defaultCharset())), null);
+            loadHTMLContent(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.help")).getBytes(Charset.defaultCharset())));
         } catch (Exception e) {
             throw new DiaryException(text("error.startPage"), e);
         }
+
         hiddenEntryItem.setSelected(false);
     }
 
@@ -158,9 +177,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         closeItem = new JMenuItem(text("menu.file.close"));
         closeItem.setAccelerator(KeyStroke.getKeyStroke(VK_W, CTRL_DOWN_MASK));
         closeItem.addActionListener(this);
-
-        exitItem = new JMenuItem(text("menu.file.exit"));
-        exitItem.setAccelerator(KeyStroke.getKeyStroke(VK_F4, ALT_DOWN_MASK));
     }
 
     private void buildAboutMenu() {
@@ -196,11 +212,11 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         separator1 = new JSeparator();
 
         nextEntryItem = new JMenuItem(text("menu.entries.next"));
-        nextEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_RIGHT, 0));
+        nextEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_PERIOD, 0));
         nextEntryItem.addActionListener(this);
 
         prevEntryItem = new JMenuItem(text("menu.entries.previous"));
-        prevEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_LEFT, 0));
+        prevEntryItem.setAccelerator(KeyStroke.getKeyStroke(VK_COMMA, 0));
         prevEntryItem.addActionListener(this);
     }
 
@@ -216,7 +232,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         backupItem.setMnemonic(VK_B);
         loadFromBackupItem.setMnemonic(VK_L);
         closeItem.setMnemonic(VK_C);
-        exitItem.setMnemonic(VK_E);
 
         newEntryItem.setMnemonic(VK_N);
         editEntryItem.setMnemonic(VK_E);
@@ -238,7 +253,6 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         fileMenu.add(loadFromBackupItem);
         fileMenu.add(separator3);
         fileMenu.add(closeItem);
-        fileMenu.add(exitItem);
 
         entriesMenu.add(newEntryItem);
         entriesMenu.add(editEntryItem);
@@ -286,7 +300,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
                 DiaryStore.ENTRIES.put(currentEntry, "");
                 DiaryStore.ENTRIES.remove(currentEntry);
                 try {
-                    htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.removed")).getBytes(Charset.defaultCharset())), null);
+                    loadHTMLContent(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(text("html.place.removed")).getBytes(Charset.defaultCharset())));
                 } catch (Exception e) {
                     throw new DiaryException(text("error.removeEntry"), e);
                 }
@@ -310,7 +324,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         if (entry != null) {
             String content = DiaryStore.ENTRIES.get(entry);
             try {
-                htmlPanel.setDocument(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(DiaryMarkdownToHTML.getHTMLFromMarkdown(content)).getBytes(Charset.defaultCharset())), null);
+                loadHTMLContent(new ByteArrayInputStream(DiaryMarkdownToHTML.wrapHTMLIntoActualDocument(DiaryMarkdownToHTML.getHTMLFromMarkdown(content)).getBytes(Charset.defaultCharset())));
             } catch (Exception e) {
                 throw new DiaryException(text("error.updateError"), e);
             }
@@ -328,7 +342,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
     public void updatePanelDirect(InputStream inputStream) {
         try {
-            htmlPanel.setDocument(inputStream, null);
+            loadHTMLContent(inputStream);
             hiddenEntryItem.setSelected(currentEntry != null && currentEntry.hidden);
         } catch (Exception e) {
             throw new DiaryException(text("error.updateDirectError"), e);
@@ -456,7 +470,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             reload(currentFile);
         } else if (aboutItem.equals(source)) {
             aboutDialog.showAboutScreen();
-        } else if (closeItem.equals(source)) { // exitItem should take care of itself with Alt+F4
+        } else if (closeItem.equals(source)) {
             dispose();
             wrapSaveThenCallLater(currentFile, this::onClose);
         } else if (hiddenEntryItem.equals(source)) {

@@ -38,8 +38,10 @@ public class DiaryIntroduction extends JFrame {
         buildContentPane();
         fileList.setModel(new DefaultListModel<>());
 
-        openInExplorerButton.setEnabled(false);
-        openInExplorerButton.setToolTipText(text("introduction.openInExplorer.disabled"));
+        if (!Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
+            openInExplorerButton.setEnabled(false);
+            openInExplorerButton.setToolTipText(text("introduction.openInExplorer.disabled"));
+        }
         openButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
