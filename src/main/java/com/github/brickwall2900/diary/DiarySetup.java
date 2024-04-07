@@ -8,6 +8,7 @@ import com.github.brickwall2900.diary.utils.ThisIsAnInsaneEncryptAlgorithm;
 import org.httprpc.sierra.TaskExecutor;
 
 import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -97,17 +98,27 @@ public class DiarySetup {
     }
 
     public static void applyConfiguration(DiaryFrame frame, DiaryStore.DiaryConfiguration configuration) {
+        try {
+            if (SwingUtilities.isEventDispatchThread()) {
+                applyConfigurationVisuals(frame, configuration);
+            } else {
+                SwingUtilities.invokeAndWait(() -> applyConfigurationVisuals(frame, configuration));
+            }
+        } catch (InterruptedException | InvocationTargetException e) { }
+        DiaryStore.setupAutosave(configuration);
+    }
+
+    private static void applyConfigurationVisuals(DiaryFrame frame, DiaryStore.DiaryConfiguration configuration) {
         if (configuration.darkMode) {
             FlatDarkLaf.setup();
         } else {
             FlatLightLaf.setup();
-       }
+        }
         FlatAnimatedLafChange.showSnapshot();
         frame.editor.changeTheme(configuration.darkMode);
         frame.configurationDialog.templateEditor.changeTheme(configuration.darkMode);
         frame.updatePanelWithCurrentEntry();
         frame.updateUI();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
-        DiaryStore.setupAutosave(configuration);
     }
 }

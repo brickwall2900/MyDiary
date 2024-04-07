@@ -10,10 +10,24 @@ repositories {
     mavenCentral()
 }
 
-mainClassName = 'com.github.brickwall2900.diary.Main'
-if (!hasProperty('mainClass')) {
-    ext.mainClass = mainClassName
+application {
+//    mainModule = 'diary.main'
+    mainClass = 'com.github.brickwall2900.diary.Main'
 }
+
+//java {
+//    modularity.inferModulePath = true
+//}
+//
+//compileJava {
+//    java.modularity.inferModulePath = true
+//    doFirst {
+//        options.compilerArgs += [
+//                '--module-path', classpath.asPath
+//        ]
+//        classpath = files()
+//    }
+//}
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
@@ -22,14 +36,21 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.crypto.tink/tink
     implementation 'com.google.crypto.tink:tink:1.9.0'
 
-    implementation 'org.httprpc:sierra:2.0'
+    implementation 'org.httprpc:sierra:2.0.5'
 
     // https://mvnrepository.com/artifact/com.formdev/flatlaf
     implementation 'com.formdev:flatlaf:3.1.1'
     implementation 'com.formdev:flatlaf-extras:3.1.1'
 
     implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
-    implementation 'org.commonmark:commonmark:0.21.0'
+
+    implementation 'org.commonmark:commonmark:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-autolink:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-image-attributes:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-ins:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-gfm-strikethrough:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-gfm-tables:0.22.0'
+    implementation 'org.commonmark:commonmark-ext-task-list-items:0.22.0'
 
     implementation 'com.fifesoft:rsyntaxtextarea:3.3.3'
 }

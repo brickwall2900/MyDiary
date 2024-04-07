@@ -1,6 +1,17 @@
-package com.github.brickwall2900.diary;
+package com.github.brickwall2900.diary.html;
 
+import com.github.brickwall2900.diary.DiaryException;
+import com.github.brickwall2900.diary.DiaryFrame;
+import com.github.brickwall2900.diary.DiaryStore;
+import com.github.brickwall2900.diary.Main;
 import com.github.brickwall2900.diary.dialogs.DiaryLoadDialog;
+import org.commonmark.Extension;
+import org.commonmark.ext.autolink.AutolinkExtension;
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.ext.image.attributes.ImageAttributesExtension;
+import org.commonmark.ext.ins.InsExtension;
+import org.commonmark.ext.task.list.items.TaskListItemsExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -10,7 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.brickwall2900.diary.utils.TranslatableText.text;
@@ -25,7 +38,7 @@ public class DiaryMarkdownToHTML {
         }
     }
 
-    protected static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
+    public static final Map<Integer, CacheRecord> MD_TO_HTML_CACHE = new HashMap<>();
 
     private static final String TEMPLATE, LIGHT_CSS, DARK_CSS;
 
@@ -39,6 +52,16 @@ public class DiaryMarkdownToHTML {
         } catch (IOException e) {
             throw new DiaryException("HTML Template not found!", e);
         }
+
+        List<Extension> extensions = new ArrayList<>();
+        extensions.add(AutolinkExtension.create());
+        extensions.add(StrikethroughExtension.create());
+        extensions.add(TablesExtension.create());
+        extensions.add(InsExtension.create());
+        extensions.add(ImageAttributesExtension.create());
+        extensions.add(TaskListItemsExtension.create());
+        PARSER = Parser.builder().extensions(extensions).build();
+        RENDERER = HtmlRenderer.builder().extensions(extensions).build();
     }
 
 
@@ -106,6 +129,9 @@ public class DiaryMarkdownToHTML {
             <p>Well, there goes that entry... Why did you remove it?</p>
             """;
 
+    private static final Parser PARSER;
+    private static final HtmlRenderer RENDERER;
+
     private static class DiaryEntryLoader extends SwingWorker<CacheRecord, Void> {
         private final String markdown;
 
@@ -121,10 +147,10 @@ public class DiaryMarkdownToHTML {
             }
             setTask(text("html.process.parse"));
             setProgress(0);
-            Node document = Parser.builder().build().parse(markdown);
+            Node document = PARSER.parse(markdown);
             setTask(text("html.process.convert"));
             setProgress(33);
-            String rendered = HtmlRenderer.builder().build().render(document);
+            String rendered = RENDERER.render(document);
             setTask(text("html.process.process"));
             setProgress(66);
             ByteArrayInputStream bis = new ByteArrayInputStream(wrapHTMLIntoActualDocument(rendered).getBytes(Charset.defaultCharset()));

@@ -2,8 +2,7 @@ package com.github.brickwall2900.diary;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.github.brickwall2900.diary.dialogs.DiaryErrorMessage;
-
-import javax.swing.*;
+import com.github.brickwall2900.diary.hacks.DiaryModuleWorkaround;
 
 import static com.github.brickwall2900.diary.utils.TranslatableText.text;
 
@@ -11,6 +10,10 @@ public class Main {
     public static final Main INSTANCE = new Main();
 
     public static void main(String[] args) {
+        if (!Boolean.parseBoolean(System.getProperty("diary.moduleAccessWorkaround", "false"))) {
+            DiaryModuleWorkaround.main(args);
+            return;
+        }
         try {
             INSTANCE.setup();
             INSTANCE.start();

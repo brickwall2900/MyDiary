@@ -17,6 +17,7 @@ public class DiaryAboutDialog extends JDialog {
 
     public JLabel icon;
     public JEditorPane aboutArea;
+    public JButton debugMode;
 
     public JButton closeButton;
 
@@ -32,6 +33,12 @@ public class DiaryAboutDialog extends JDialog {
         aboutArea.setText("Allan please put an About screen here...");
         icon.setIcon(ICON);
         closeButton.addActionListener(e -> dispose());
+        debugMode.addActionListener(e -> {
+            if (JOptionPane.showConfirmDialog(this, text("about.debugMode.warn")) == JOptionPane.YES_OPTION) {
+                parent.setDebugMode(true);
+                debugMode.setEnabled(false);
+            }
+        });
 
         setIconImage(IMAGE_ICON);
         setModal(true);
@@ -50,6 +57,7 @@ public class DiaryAboutDialog extends JDialog {
                         cell(aboutArea = new JEditorPane()).weightBy(1)),
                 glue(),
                 row(4,
+                        cell(debugMode = new JButton(text("about.debugMode"))),
                         glue(),
                         cell(closeButton = new JButton(text("dialog.close"))))
         ).with(contentPane -> contentPane.setBorder(new EmptyBorder(8, 8, 8, 8))).getComponent());

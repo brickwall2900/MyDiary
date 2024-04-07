@@ -1,15 +1,14 @@
 package com.github.brickwall2900.diary;
 
 import com.github.brickwall2900.diary.dialogs.*;
-import org.xhtmlrenderer.simple.FSScrollPane;
-import org.xhtmlrenderer.simple.XHTMLPanel;
+import com.github.brickwall2900.diary.html.DiaryEditorKit;
+import com.github.brickwall2900.diary.html.DiaryMarkdownToHTML;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,12 +17,12 @@ import java.awt.event.WindowListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,6 +69,9 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             public JMenuItem preferencesMenu;
             public JMenuItem aboutItem;
 
+        public JMenu debugMenu;
+            public JMenuItem showHTMLContentMenu;
+
     public JScrollPane scrollPane;
         public JTextPane htmlPanel;
 
@@ -87,7 +89,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         buildMenuBar();
 
         htmlPanel = new JTextPane();
-        htmlPanel.setEditorKit(new HTMLEditorKit());
+//        htmlPanel.setEditorKit(new HTMLEditorKit());
+        htmlPanel.setEditorKit(new DiaryEditorKit());
         htmlPanel.setEditable(false);
         scrollPane = new JScrollPane(htmlPanel);
         loadToHelpPage();
@@ -116,12 +119,27 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         htmlPanel.setDocument(htmlPanel.getEditorKit().createDefaultDocument());
     }
 
+    private void initStyles() {
+
+    }
+
     public void loadHTMLContent(InputStream is) {
         clearHTMLPanelContent();
+        HTMLDocument document = (HTMLDocument) htmlPanel.getStyledDocument();
         try {
-            htmlPanel.getEditorKit().read(is, htmlPanel.getStyledDocument(), 0);
+            htmlPanel.getEditorKit().read(is, document, document.getLength());
         } catch (IOException | BadLocationException e) {
             throw new RuntimeException(e);
+        }
+
+//        htmlPanel.setCaretPosition(3);
+//        htmlPanel.insertComponent(new JButton("TEST"));
+//        htmlPanel.insertComponent(new JButton("TEST"));
+        HTMLEditorKit editorKit = (HTMLEditorKit) htmlPanel.getEditorKit();
+        try (OutputStream outputStream = Files.newOutputStream(Path.of("./", "test.html"))) {
+            editorKit.write(outputStream, document, 0, document.getLength());
+        } catch (IOException | BadLocationException e) {
+            e.printStackTrace();
         }
     }
 
@@ -145,6 +163,7 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         buildFileMenu();
         buildAboutMenu();
         buildEntriesMenu();
+        buildDebugMenu();
 
         buildMnemonics();
 
@@ -220,6 +239,13 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
         prevEntryItem.addActionListener(this);
     }
 
+    private void buildDebugMenu() {
+        debugMenu = new JMenu(text("menu.debug"));
+
+        showHTMLContentMenu = new JMenuItem(text("menu.debug.showHTMLContent"));
+        showHTMLContentMenu.addActionListener(this);
+    }
+
     private void buildMnemonics() {
         // menu mnemonics
         fileMenu.setMnemonic(VK_F);
@@ -265,6 +291,8 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
 
         aboutMenu.add(preferencesMenu);
         aboutMenu.add(aboutItem);
+
+        debugMenu.add(showHTMLContentMenu);
 
         menuBar.add(fileMenu);
         menuBar.add(entriesMenu);
@@ -475,7 +503,30 @@ public class DiaryFrame extends JFrame implements ActionListener, WindowListener
             wrapSaveThenCallLater(currentFile, this::onClose);
         } else if (hiddenEntryItem.equals(source)) {
             toggleCurrentEntryVisibility();
+        } else if (showHTMLContentMenu.equals(source)) {
+            showHTMLContent();
         }
+    }
+
+    private boolean debugMode = false;
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        if (debugMode) {
+            menuBar.add(debugMenu);
+        } else {
+            menuBar.remove(debugMenu);
+        }
+        menuBar.revalidate();
+        menuBar.repaint();
+    }
+
+    private void showHTMLContent() {
+        System.out.println(htmlPanel.getText());
     }
 
     private void onClose() {
