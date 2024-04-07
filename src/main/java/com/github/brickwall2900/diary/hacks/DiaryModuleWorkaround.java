@@ -7,7 +7,6 @@ import java.util.List;
 public class DiaryModuleWorkaround {
     public static void main(String[] args) {
         System.err.println("Workaround for module java.desktop does not \"opens javax.swing.text.html.parser\" to module diary.main" /* or unnamed module or whatever the hell */);
-        System.err.println("Raize, help me please.");
         System.err.println("Code is not coding!!");
 
         // give all the internals TvT
